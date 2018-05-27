@@ -8,7 +8,7 @@ from .version import __version__
 app_data_path = 'log'
 LOG_FOLDER = os.mkdir(app_data_path) if not os.path.exists(app_data_path) else None
 
-logger = logging.getLogger('runner')
+logger = logging.getLogger('ipx_logger')
 
 log_formatter = logging.Formatter('%(message)s')
 log_file = 'runner_log_{}.txt'.format(strftime("%Y_%m_%d_%H_%M_%S", gmtime()))
