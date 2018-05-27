@@ -5,9 +5,6 @@ from time import gmtime, strftime
 from .version import __version__
 
 
-STATION = os.environ['COMPUTERNAME']
-
-
 app_data_path = 'log'
 LOG_FOLDER = os.mkdir(app_data_path) if not os.path.exists(app_data_path) else None
 
@@ -31,4 +28,3 @@ logger.setLevel(logging.INFO)
 
 logger.info('runner version ' + __version__)
 logger.info('Log file -> ' + log_file)
-logger.info('STATION: ' + str(STATION))
