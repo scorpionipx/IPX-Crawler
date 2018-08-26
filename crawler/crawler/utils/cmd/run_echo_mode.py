@@ -27,9 +27,14 @@ def main():
     options = ap.parse_args()
 
     ip = options.ip_address
-    port = options.port
+    try:
+        port = int(options.port)
+    except:
+        port = None
 
-    c = Crawler(ip=ip, port=int(port))
+
+
+    c = Crawler(ip=ip, port=port)
     c.echo()
 
 
