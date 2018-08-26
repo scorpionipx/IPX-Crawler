@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 
 from crawler.core import Crawler
+from crawler.utils.connection.settings import DEFAULT_PORT
 
 
 def main():
@@ -30,7 +31,7 @@ def main():
     try:
         port = int(options.port)
     except:
-        port = None
+        port = DEFAULT_PORT
 
     c = Crawler(ip=ip, port=port)
     c.echo()
