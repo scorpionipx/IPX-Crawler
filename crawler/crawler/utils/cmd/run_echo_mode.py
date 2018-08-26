@@ -32,8 +32,6 @@ def main():
     except:
         port = None
 
-
-
     c = Crawler(ip=ip, port=port)
     c.echo()
 

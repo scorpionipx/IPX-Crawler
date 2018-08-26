@@ -14,6 +14,7 @@ class Crawler:
         """Constructor
         """
         logger.debug("Initializing Crawler...")
+        logger.info("ip: {}".format(ip))
         self.connection = Host(forced_ip=ip, port=port)
 
         self.__listening__ = False
