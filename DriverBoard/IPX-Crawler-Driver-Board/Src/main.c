@@ -89,6 +89,8 @@ int main(void)
   TFT_fill(Black);
 
   print_str(60, 0, 1, Green, Black, "ScorpionIPX Crawler Driver Board");
+  print_str(0, 8, 1, Green, Black, "front track direction:");
+  print_str(0, 16, 1, Green, Black, "track power:");
 
   HAL_TIM_Base_Start(&htim4);
 
@@ -97,7 +99,8 @@ int main(void)
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);
 
-  uint8_t dc = 0;
+  uint8_t dc = 101;
+  uint8_t dir = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -105,7 +108,24 @@ int main(void)
   while (1)
   {
 	  HAL_Delay(50);
-	  HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_14);
+	  HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_14);dc ++;
+
+	  if(dc > 100)
+	  {
+		  HAL_Delay(1350);
+		  dc = 0;
+		  stop_tracks();
+		  HAL_Delay(850);
+		  dir ++;
+		  if(dir & 1)
+		  {
+			  print_str(138, 8, 1, Green, Black, "backward");
+		  }
+		  else
+		  {
+			  print_str(138, 8, 1, Green, Black, "forward ");
+		  }
+	  }
 	  /*
 	  if(__HAL_TIM_GET_COMPARE(&htim4, TIM_CHANNEL_1) >= 99)
 	  {
@@ -114,12 +134,26 @@ int main(void)
 	  }
 	  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, __HAL_TIM_GET_COMPARE(&htim4, TIM_CHANNEL_1) + 1);
 	  */
-	  set_fl_track_dc(dc);
-	  dc ++;
-	  if(dc > 100)
+	  if(dir & 1)
 	  {
-		  dc = 0;
+		  fl_track_backward(dc);
+		  fr_track_backward(dc);
+
+		  rl_track_backward(dc);
+		  rr_track_backward(dc);
 	  }
+	  else
+	  {
+		  fl_track_forward(dc);
+		  fr_track_forward(dc);
+
+		  rl_track_forward(dc);
+		  rr_track_forward(dc);
+	  }
+
+	  print_str(84, 16, 1, Green, Black, Itoa(dc, 10, 3));
+	  print_str(102, 16, 1, Green, Black, "%");
+
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */

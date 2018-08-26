@@ -193,12 +193,6 @@
 #define TP_INT1_GPIO_Port GPIOA
 #define R2_Pin GPIO_PIN_10
 #define R2_GPIO_Port GPIOC
-#define D2_Pin GPIO_PIN_0
-#define D2_GPIO_Port GPIOD
-#define D3_Pin GPIO_PIN_1
-#define D3_GPIO_Port GPIOD
-#define G7_Pin GPIO_PIN_3
-#define G7_GPIO_Port GPIOD
 #define B2_Pin GPIO_PIN_6
 #define B2_GPIO_Port GPIOD
 #define G3_Pin GPIO_PIN_10

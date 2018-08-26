@@ -26,8 +26,33 @@
 
 #define TRACKS_PWM_TIMER &htim4
 
-#define SET_FL_TRACK_DIRECTION_FORWARD ()
+#define FL_TRACK_DIRECTION_PORT GPIOD
+#define FL_TRACK_DIRECTION_FORWARD_PIN GPIO_PIN_2
+#define FL_TRACK_DIRECTION_BACKWARD_PIN GPIO_PIN_3
 
+#define FR_TRACK_DIRECTION_PORT GPIOD
+#define FR_TRACK_DIRECTION_FORWARD_PIN GPIO_PIN_4
+#define FR_TRACK_DIRECTION_BACKWARD_PIN GPIO_PIN_5
+
+#define RL_TRACK_DIRECTION_PORT GPIOD
+#define RL_TRACK_DIRECTION_FORWARD_PIN GPIO_PIN_0
+#define RL_TRACK_DIRECTION_BACKWARD_PIN GPIO_PIN_1
+
+#define RR_TRACK_DIRECTION_PORT GPIOC
+#define RR_TRACK_DIRECTION_FORWARD_PIN GPIO_PIN_11
+#define RR_TRACK_DIRECTION_BACKWARD_PIN GPIO_PIN_12
+
+void fl_track_forkward(uint8_t speed);
+void fl_track_backward(uint8_t speed);
+void fr_track_forkward(uint8_t speed);
+void fr_track_backward(uint8_t speed);
+
+void rl_track_forkward(uint8_t speed);
+void rl_track_backward(uint8_t speed);
+void rr_track_forkward(uint8_t speed);
+void rr_track_backward(uint8_t speed);
+
+void stop_tracks(void);
 
 void set_fl_track_dc(uint8_t duty_cycle);
 void set_fr_track_dc(uint8_t duty_cycle);
