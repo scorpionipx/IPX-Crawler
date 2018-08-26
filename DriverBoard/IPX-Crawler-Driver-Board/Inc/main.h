@@ -57,6 +57,12 @@
 #define A4_GPIO_Port GPIOF
 #define A5_Pin GPIO_PIN_5
 #define A5_GPIO_Port GPIOF
+#define SPI5_SCK_Pin GPIO_PIN_7
+#define SPI5_SCK_GPIO_Port GPIOF
+#define SPI5_MISO_Pin GPIO_PIN_8
+#define SPI5_MISO_GPIO_Port GPIOF
+#define SPI5_MOSI_Pin GPIO_PIN_9
+#define SPI5_MOSI_GPIO_Port GPIOF
 #define ENABLE_Pin GPIO_PIN_10
 #define ENABLE_GPIO_Port GPIOF
 #define PH0_OSC_IN_Pin GPIO_PIN_0
@@ -167,6 +173,10 @@
 #define HSYNC_GPIO_Port GPIOC
 #define G6_Pin GPIO_PIN_7
 #define G6_GPIO_Port GPIOC
+#define I2C3_SDA_Pin GPIO_PIN_9
+#define I2C3_SDA_GPIO_Port GPIOC
+#define I2C3_SCL_Pin GPIO_PIN_8
+#define I2C3_SCL_GPIO_Port GPIOA
 #define STLINK_RX_Pin GPIO_PIN_9
 #define STLINK_RX_GPIO_Port GPIOA
 #define STLINK_TX_Pin GPIO_PIN_10

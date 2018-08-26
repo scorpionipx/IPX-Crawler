@@ -8,10 +8,9 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include startup/subdir.mk
 -include Src/subdir.mk
 -include Drivers/STM32F4xx_HAL_Driver/Src/subdir.mk
--include Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/subdir.mk
--include Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/subdir.mk
 -include subdir.mk
 -include objects.mk
 
@@ -32,10 +31,10 @@ endif
 all: IPX-Crawler-Driver-Board.elf
 
 # Tool invocations
-IPX-Crawler-Driver-Board.elf: $(OBJS) $(USER_OBJS)
+IPX-Crawler-Driver-Board.elf: $(OBJS) $(USER_OBJS) ../STM32F429ZITx_FLASH.ld
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU GCC Linker'
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -specs=nosys.specs -specs=nano.specs -T"../STM32F429ZITx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -lm -o "IPX-Crawler-Driver-Board.elf" @"objects.list" $(USER_OBJS) $(LIBS)
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -specs=nosys.specs -specs=nano.specs -T"../STM32F429ZITx_FLASH.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "IPX-Crawler-Driver-Board.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build

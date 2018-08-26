@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=D:/STM32_IDE/workspace/IPX-Crawler-Driver-Board/Inc
+HeaderPath=D:/Documents/Programming/Repositories/ipx_crawler/DriverBoard/IPX-Crawler-Driver-Board/Inc
 HeaderFiles=gpio.h;spi.h;tim.h;stm32f4xx_it.h;stm32f4xx_hal_conf.h;main.h;
-SourcePath=D:/STM32_IDE/workspace/IPX-Crawler-Driver-Board/Src
+SourcePath=D:/Documents/Programming/Repositories/ipx_crawler/DriverBoard/IPX-Crawler-Driver-Board/Src
 SourceFiles=gpio.h;spi.h;tim.h;stm32f4xx_it.h;stm32f4xx_hal_conf.h;main.h;gpio.c;spi.c;tim.c;stm32f4xx_it.c;stm32f4xx_hal_msp.c;main.c;
 
 [PreviousLibFiles]
@@ -10,4 +10,12 @@ LibFiles=Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h;Drivers/STM32F4xx_
 [PreviousUsedRideFiles]
 SourceFiles=../Src/main.c;../Src/gpio.c;../Src/spi.c;../Src/tim.c;../Src/stm32f4xx_it.c;../Src/stm32f4xx_hal_msp.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c;../Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c;../Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f429xx.s;
 HeaderPath=..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\Drivers\CMSIS\Device\ST\STM32F4xx\Include;..\Drivers\CMSIS\Include;
+
+[]
+SourceFiles=;null;
+
+[PreviousUsedSW4STM32Files]
+SourceFiles=../Src/main.c;../Src/gpio.c;../Src/spi.c;../Src/tim.c;../Src/stm32f4xx_it.c;../Src/stm32f4xx_hal_msp.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr_ex.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c;../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c;../Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c;../Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f429xx.s;
+HeaderPath=..\Drivers\STM32F4xx_HAL_Driver\Inc;..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy;..\Drivers\CMSIS\Device\ST\STM32F4xx\Include;..\Drivers\CMSIS\Include;
+CDefines=__weak=__attribute__((weak));__packed=__attribute__((__packed__));
 
