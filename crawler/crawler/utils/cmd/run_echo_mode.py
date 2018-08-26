@@ -1,8 +1,7 @@
 from argparse import ArgumentParser
 
 from crawler.core import Crawler
-from crawler.utils.connection.settings import DEFAULT_PORT
-
+DEFAULT_PORT = 1369
 
 def main():
     ap = ArgumentParser()
