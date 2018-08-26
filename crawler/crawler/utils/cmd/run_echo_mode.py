@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 from crawler.core import Crawler
 DEFAULT_PORT = 1369
 
+
 def main():
     ap = ArgumentParser()
 
@@ -27,6 +28,7 @@ def main():
     options = ap.parse_args()
 
     ip = options.ip_address
+    ip='192.168.0.109'
     try:
         port = int(options.port)
     except:
