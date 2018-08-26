@@ -32,6 +32,8 @@ def main():
     except:
         port = DEFAULT_PORT
 
+    print("ARG IP:{}".format(ip))
+
     c = Crawler(ip=ip, port=port)
     c.echo()
 

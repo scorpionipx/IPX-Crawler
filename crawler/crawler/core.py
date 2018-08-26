@@ -4,6 +4,7 @@ from crawler.utils.connection.host import Host
 from crawler.utils.connection.settings import DEFAULT_PORT
 
 logger = logging.getLogger('ipx_logger')
+logger.setLevel(logging.DEBUG)
 
 
 class Crawler:

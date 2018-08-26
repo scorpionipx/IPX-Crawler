@@ -20,11 +20,10 @@ file_output.setLevel(logging.INFO)
 logger.addHandler(file_output)
 
 console = logging.StreamHandler()
-console.setLevel(logging.INFO)
 console.setFormatter(log_formatter)
 logger.addHandler(console)
 
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 logger.info('runner version ' + __version__)
 logger.info('Log file -> ' + log_file)
