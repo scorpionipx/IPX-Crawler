@@ -79,7 +79,7 @@ class Client:
         :return: None or server's response
         """
         try:
-            response = self.socket.recv(DEFAULT_BUFFER_SIZE)
+            response = self.socket.recv(BUFFER_SIZE)
         except Exception as err:
             logger.warning(err)
             response = None
@@ -95,3 +95,8 @@ class Client:
         return response
 
 
+if __name__ == '__main__':
+    c = Client(host='192.168.0.110', port=DEFAULT_PORT)
+    c.connect_to_host()
+    c.send_package('Armandilo')
+    input()
