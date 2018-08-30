@@ -18,7 +18,7 @@ class CrawlerDriverBoardSTM:
         """
 
         self.SPI.open(0, 0)
-        self.SPI.max_speed_hz = 10000000
+        self.SPI.max_speed_hz = 5000000
 
     def send_SPI_data(self, data):
         """send_SPI_data
