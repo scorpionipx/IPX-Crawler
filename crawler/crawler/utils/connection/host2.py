@@ -100,6 +100,8 @@ class Host:
             Run server in echo mode.
         :return: None
         """
+        if not self.server_is_on:
+            self.start_server()
         if self.__client__ is None:
             self.connect_with_client()
 
