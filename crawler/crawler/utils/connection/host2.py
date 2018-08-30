@@ -41,7 +41,7 @@ class Host:
         LOGGER.info("Starting Crawler's server...")
         try:
             self.__connection__ = py_socket.socket(py_socket.AF_INET, py_socket.SOCK_STREAM)
-            self.__connection__.bind((py_socket.gethostname(), self.__port__))
+            self.__connection__.bind(("", self.__port__))
         except Exception as err:
             error = "Failed to start Crawler's server! {}".format(err)
             LOGGER.error(error)
