@@ -30,6 +30,7 @@ class Host:
 
         self.server_is_on = False
         self.echo_mode_on = False
+        self.listening = False
 
     def start_server(self):
         """start_server
@@ -108,19 +109,6 @@ class Host:
         package_income_thread = threading.Thread(target=self.__echo__)
         self.echo_mode_on = True
         package_income_thread.start()
-        # package_income_thread.join()
-        
-    def listen(self):
-        """listen
-
-            Listen to incoming packages and execute commands.
-        :return: None
-        """
-        if not self.server_is_on:
-            self.start_server()
-        if self.__client__ is None:
-            self.connect_with_client()
-
 
     def string_to_bytes(self, _string, encoding=None):
         """
@@ -186,6 +174,14 @@ class Host:
         """
         self.echo_mode_on = False
         LOGGER.info("Stopped echo mode!")
+
+    def stop_listening(self):
+        """stop_listening
+
+            Stop listening to incoming packages.
+        :return: None
+        """
+        self.listening = False
 
     def connect_with_client(self):
         """connect_with_client

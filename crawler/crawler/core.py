@@ -1,10 +1,11 @@
 import logging
+import threading
 
 from crawler.utils.connection.host2 import Host
 from crawler.utils.connection.settings import DEFAULT_PORT
 
-logger = logging.getLogger('ipx_logger')
-logger.setLevel(logging.DEBUG)
+LOGGER = logging.getLogger('crawler')
+LOGGER.setLevel(logging.INFO)
 
 
 class Crawler:
@@ -14,12 +15,12 @@ class Crawler:
     def __init__(self, ip=None, port=DEFAULT_PORT):
         """Constructor
         """
-        logger.debug("Initializing Crawler...")
+        LOGGER.debug("Initializing Crawler...")
         print("ip: {}".format(ip))
         self.connection = Host(ip=ip, port=port)
 
         self.__listening__ = False
-        logger.debug("Crawler initialized!")
+        LOGGER.debug("Crawler initialized!")
 
     def connect_with_client(self):
         """connect_with_client
@@ -34,6 +35,25 @@ class Crawler:
         :return: None
         """
         self.connection.echo()
+
+    def listen(self):
+        """listen
+
+            Listen to incoming ethernet packages and execute commands.
+        :return: 
+        """
+        listen_thread = threading.Thread(target=self.__listen__)
+        listen_thread.start()
+    
+    def __listen__(self):
+        """__listen__
+        
+            Listen to incoming ethernet packages and execute commands thread.
+        :return: None
+        """
+        while self.connection.listening:
+            incoming_package = self.connection.__get_package_from_client__()
+            LOGGER.info(incoming_package)
 
     def speak(self, text):
         """speak
