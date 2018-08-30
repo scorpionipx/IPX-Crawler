@@ -150,6 +150,8 @@ class Host:
             decoded_package = incoming_package.decode(encoding=ENCODING)
             LOGGER.info("echo mode - received package: {} - {}".format(decoded_package, len(decoded_package)))
 
+            self.send_package(decoded_package)
+
             if decoded_package == LOST_CONNECTION_PACKAGE:
                 LOGGER.info("echo mode - received null package")
                 lost_connection_packages_counter += 1
