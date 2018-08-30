@@ -51,6 +51,14 @@ class Crawler:
             Listen to incoming ethernet packages and execute commands thread.
         :return: None
         """
+        if not self.connection.server_is_on:
+            self.connection.start_server()
+
+        if self.connection.__client__ is None:
+            self.connection.connect_with_client()
+
+        self.connection.listening = True
+        
         while self.connection.listening:
             incoming_package = self.connection.__get_package_from_client__()
             LOGGER.info(incoming_package)
