@@ -99,5 +99,5 @@ if __name__ == '__main__':
     c.connect_to_host()
     while 1:
         x = input()
-        r = c.send_package(x)
+        r = c.send_package_and_get_response(x)
         LOGGER.info("Resp: {}".format(r))
