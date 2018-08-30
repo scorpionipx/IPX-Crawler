@@ -110,6 +110,33 @@ class Host:
         package_income_thread.start()
         package_income_thread.join()
 
+    def string_to_bytes(self, _string, encoding=None):
+        """
+            Method converts string type to bytes, using specified encoding.
+        Conversion is required for socket's data transfer protocol: string type is not supported.
+        :param _string: string to be converted
+        :param encoding: character encoding key
+        :return: bytes(_string, encoding)
+        """
+        if encoding is None:
+            encoding = ENCODING
+        return bytes(_string, encoding)
+
+    def send_package(self, package):
+        """
+            Sends a package to the server.
+        :param package: package to be sent
+        :return: True if ok, error occurred otherwise
+        """
+        try:
+            package = self.string_to_bytes(package)
+            self.__client__.send(package)
+            return True
+        except Exception as err:
+            error = "Error occurred while sending package to server: " + str(err)
+            LOGGER.warning(error)
+            return error
+
     def __echo__(self):
         """__echo__
 

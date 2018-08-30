@@ -3,7 +3,8 @@ import socket as py_socket
 
 from crawler.utils.connection.settings import *
 
-logger = logging.getLogger('ipx_logger')
+LOGGER = logging.getLogger('crawler')
+LOGGER.setLevel(logging.INFO)
 
 
 class Client:
@@ -20,7 +21,7 @@ class Client:
                      example: 1369
         """
         try:
-            logger.debug("Initiating client...")
+            LOGGER.debug("Initiating client...")
 
             # create the socket object
             self.socket = py_socket.socket(py_socket.AF_INET, py_socket.SOCK_STREAM)
@@ -29,13 +30,11 @@ class Client:
             self.host = host
             self.port = port
 
-            self.encoding = 'utf-8'
-
-            logger.debug("Client initiated!")
+            LOGGER.debug("Client initiated!")
 
         except Exception as err:
             error = "Failed to initiate client! " + str(err)
-            logger.warning(error)
+            LOGGER.warning(error)
 
     def string_to_bytes(self, _string, encoding=None):
         """
@@ -46,7 +45,7 @@ class Client:
         :return: bytes(_string, encoding)
         """
         if encoding is None:
-            encoding = self.encoding
+            encoding = ENCODING
         return bytes(_string, encoding)
 
     def connect_to_host(self):
@@ -54,9 +53,9 @@ class Client:
             Method establishes connection to the host.
         :return: None
         """
-        logger.debug("Connecting to host...")
+        LOGGER.debug("Connecting to host...")
         self.socket.connect((self.host, self.port))
-        logger.debug("Connected to {}!".format(self.host))
+        LOGGER.debug("Connected to {}!".format(self.host))
 
     def send_package(self, package):
         """
@@ -70,7 +69,7 @@ class Client:
             return True
         except Exception as err:
             error = "Error occurred while sending package to server: " + str(err)
-            logger.warning(error)
+            LOGGER.warning(error)
             return error
 
     def get_response(self):
@@ -81,7 +80,7 @@ class Client:
         try:
             response = self.socket.recv(BUFFER_SIZE)
         except Exception as err:
-            logger.warning(err)
+            LOGGER.warning(err)
             response = None
         return response
 
@@ -99,5 +98,6 @@ if __name__ == '__main__':
     c = Client(host='192.168.0.103', port=8888)
     c.connect_to_host()
     while 1:
-        c.send_package('Armandilo')
-        input()
+        x = input()
+        r = c.send_package(x)
+        LOGGER.info("Resp: {}".format(r))
