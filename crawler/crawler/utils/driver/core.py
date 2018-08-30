@@ -18,8 +18,8 @@ class CrawlerDriverBoardSTM:
         self.SPI.open(0, 0)
         self.SPI.max_speed_hz = 61000
 
-    def send_SPI_DATA(self, data):
-        """send_SPI_DATA
+    def send_SPI_data(self, data):
+        """send_SPI_data
 
             Send specified data over SPI module.
         :param data: data to be sent

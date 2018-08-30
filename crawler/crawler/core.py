@@ -48,16 +48,6 @@ class Crawler:
         listen_thread = threading.Thread(target=self.__listen__)
         listen_thread.start()
 
-    def send_SPI_data(self, data):
-        """send_SPI_data
-
-            Send specified data over SPI
-        :param data: data to be sent
-        :type data: int
-        :return: none
-        """
-        self.driver.SPI.send_SPI_data(data)
-
     def __listen__(self):
         """__listen__
         
@@ -76,9 +66,9 @@ class Crawler:
             incoming_package = self.connection.__get_package_from_client__()
             LOGGER.info(incoming_package)
             decoded_package = incoming_package.decode('utf-8')
-            
+
             if 'spi' in decoded_package:
-                self.send_SPI_data(35)
+                self.driver.send_SPI_data(35)
             self.connection.send_package(decoded_package)
 
     def speak(self, text):
