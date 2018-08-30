@@ -1,6 +1,6 @@
 import logging
 
-from crawler.utils.connection.host import Host
+from crawler.utils.connection.host2 import Host
 from crawler.utils.connection.settings import DEFAULT_PORT
 
 logger = logging.getLogger('ipx_logger')
@@ -16,7 +16,7 @@ class Crawler:
         """
         logger.debug("Initializing Crawler...")
         print("ip: {}".format(ip))
-        self.connection = Host(forced_ip=ip, port=port)
+        self.connection = Host(ip=ip, port=port)
 
         self.__listening__ = False
         logger.debug("Crawler initialized!")
@@ -33,7 +33,7 @@ class Crawler:
             Crawler echos back every data income from controller.
         :return: None
         """
-        self.connection.run_echo_mode()
+        self.connection.echo()
 
     def speak(self, text):
         """speak
