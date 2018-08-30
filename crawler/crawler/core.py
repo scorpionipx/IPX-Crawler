@@ -58,10 +58,11 @@ class Crawler:
             self.connection.connect_with_client()
 
         self.connection.listening = True
-        
+
         while self.connection.listening:
             incoming_package = self.connection.__get_package_from_client__()
             LOGGER.info(incoming_package)
+            self.connection.send_package(incoming_package.decode('utf-8'))
 
     def speak(self, text):
         """speak
