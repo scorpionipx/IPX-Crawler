@@ -96,7 +96,8 @@ class Client:
 
 
 if __name__ == '__main__':
-    c = Client(host='192.168.0.110', port=DEFAULT_PORT)
+    c = Client(host='192.168.0.103', port=8888)
     c.connect_to_host()
-    c.send_package('Armandilo')
-    input()
+    while 1:
+        c.send_package('Armandilo')
+        input()
