@@ -8,6 +8,7 @@ class CrawlerDriverBoardSTM:
     """
     def __init__(self):
         self.SPI = spidev.SpiDev()
+        self.__init_SPI__()
 
     def __init_SPI__(self):
         """__init_SPI__
