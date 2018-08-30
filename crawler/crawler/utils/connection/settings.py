@@ -2,7 +2,7 @@ DEFAULT_IP = 'localhost'
 DEFAULT_PORT = 1369
 
 ALLOWED_CONNECTIONS = 1
-BUFFER_SIZE = 64  # bytes
+BUFFER_SIZE = 1024  # bytes
 
 ENCODING = 'utf-8'
 
