@@ -9,6 +9,7 @@ import os.path
 import sys
 
 from crawler.version import __version__
+from crawler.utils.connection.client import Client
 
 LOGGER = logging.getLogger('crawler')
 LOGGER.level = logging.INFO
@@ -32,6 +33,7 @@ class CrawlerGUI(QWidget):
         """
         self.__ip__ = None
         self.__port__ = None
+        self.__connection__ = None
 
         super().__init__()
 
@@ -68,6 +70,7 @@ class CrawlerGUI(QWidget):
         """
         self.__lw_settings_button__()
         self.__lw_connect_button__()
+        self.__lw_send_button__()
         # self.__lw_hcu__()
         # self.__lw_ecu__()
         # self.__lw_imess__()
@@ -240,7 +243,21 @@ class CrawlerGUI(QWidget):
         self.connect_button.resize(self.connect_button.sizeHint())
         self.connect_button.move(20, 45)
         self.connect_button.setToolTip('Connect to Crawler')
+        self.connect_button.clicked.connect(self.connect)
         self.connect_button.show()
+
+    def __lw_send_button__(self):
+        """__lw_send_button__
+
+            Load button used to send data to Crawler.
+        :return: None
+        """
+        self.send_button = QPushButton('SEND UDP DATA', self)
+        self.send_button.resize(self.send_button.sizeHint())
+        self.send_button.move(20, 70)
+        self.send_button.setToolTip('send to Crawler')
+        self.send_button.clicked.connect(self.send_data_and_await_response("Hello"))
+        self.send_button.show()
 
     def __load_window__(self):
         """__load_window__
@@ -271,9 +288,23 @@ class CrawlerGUI(QWidget):
                 LOGGER.info("PORT: {}".format(port))
                 self.__port__ = port
 
+    def connect(self):
+        """connect
 
+            Connect to Crawler.
+        :return:
+        """
+        self.__connection__ = Client(host=self.__ip__, port=self.__port__)
 
-
+    def send_data_and_await_response(self, data):
+        """
+        
+        :param data: 
+        :return: 
+        """
+        response = self.__connection__.send_package_and_get_response(data)
+        LOGGER.info(response)
+        
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

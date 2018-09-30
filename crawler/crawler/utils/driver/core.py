@@ -25,7 +25,7 @@ class CrawlerDriverBoardSTM:
 
             Send specified data over SPI module.
         :param data: data to be sent
-        :type data: int
+        :type data: list
         :return: None
         """
-        self.SPI.xfer([data])
+        self.SPI.xfer(data)

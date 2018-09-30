@@ -68,7 +68,7 @@ class Crawler:
             decoded_package = incoming_package.decode('utf-8')
 
             if 'spi' in decoded_package:
-                self.driver.send_SPI_data(35)
+                self.driver.send_SPI_data([1, 50, 50, 50, 50])
             self.connection.send_package(decoded_package)
 
     def speak(self, text):
