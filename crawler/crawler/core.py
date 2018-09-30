@@ -75,7 +75,8 @@ class Crawler:
                 self.connection.stop_listening()
 
             if '$i' in decoded_package:
-                self.decode_command(decoded_package)
+                if '$d' in decoded_package:
+                    self.decode_command(decoded_package)
 
     def decode_command(self, package):
         """decode_command
@@ -85,7 +86,7 @@ class Crawler:
         :type package: str
         :return:
         """
-        cmd_id = package.split("$")[0]
+        cmd_id = package[package.find("$i") + 1:package.find("$d")]
         LOGGER.info("CMD_ID: {}".format(cmd_id))
 
     def speak(self, text):
