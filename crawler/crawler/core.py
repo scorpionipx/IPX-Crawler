@@ -99,7 +99,7 @@ class Crawler:
 
                 LOGGER.info("SPI DATA RECEIVED: {}, type {}".format(spi_data, type(spi_data)))
                 for spi_d in spi_data:
-                    LOGGER.info(spi_d)
+                    LOGGER.info("DATA: {}".format(int(spi_d)))
                 pass
         except:
             pass
