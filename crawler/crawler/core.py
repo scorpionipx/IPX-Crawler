@@ -74,6 +74,20 @@ class Crawler:
             if 'stop_listening' in decoded_package:
                 self.connection.stop_listening()
 
+            if '$i' in decoded_package:
+                self.decode_command(decoded_package)
+
+    def decode_command(self, package):
+        """decode_command
+
+            Transform UDP data to Crawler command.
+        :param package: package received from client
+        :type package: str
+        :return:
+        """
+        cmd_id = package.split("$")[0]
+        LOGGER.info("CMD_ID: {}".format(cmd_id))
+
     def speak(self, text):
         """speak
             Speak provided speech.
