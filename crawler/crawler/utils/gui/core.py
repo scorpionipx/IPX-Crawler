@@ -70,8 +70,23 @@ class CrawlerGUI(QWidget):
         """
         self.__lw_settings_button__()
         self.__lw_connect_button__()
-        self.__lw_send_button__()
+        self.__lw_send_udp_button__()
         self.__lw_udp_data_entry__()
+        self.__lw_send_spi_button__()
+        self.__lw_spi_data_entry__()
+
+    def __lw_spi_data_entry__(self):
+        """__lw_spi_data_entry__
+
+            Load line edit entry used to send spi data to Crawler.
+        :return:
+        """
+        self.spi_data_holder = [None] * 5
+        for _ in range(5):
+            self.spi_data_holder[_] = QLineEdit(self)
+            self.spi_data_holder[_].move(20 + _ * 60, 145)
+            self.spi_data_holder[_].resize(50, 20)
+            self.spi_data_holder[_].show()
 
     def __lw_udp_data_entry__(self):
         """__lw_udp_data_entry__
@@ -110,18 +125,31 @@ class CrawlerGUI(QWidget):
         self.connect_button.clicked.connect(self.connect)
         self.connect_button.show()
 
-    def __lw_send_button__(self):
-        """__lw_send_button__
+    def __lw_send_udp_button__(self):
+        """__lw_send_udp_button__
 
-            Load button used to send data to Crawler.
+            Load button used to send udp data to Crawler.
         :return: None
         """
-        self.send_button = QPushButton('SEND UDP DATA', self)
-        self.send_button.resize(self.send_button.sizeHint())
-        self.send_button.move(20, 70)
-        self.send_button.setToolTip('send to Crawler')
-        self.send_button.clicked.connect(self.send_data_and_await_response)
-        self.send_button.show()
+        self.send_upd_button = QPushButton('SEND UDP DATA', self)
+        self.send_upd_button.resize(self.send_upd_button.sizeHint())
+        self.send_upd_button.move(20, 70)
+        self.send_upd_button.setToolTip('send to Crawler')
+        self.send_upd_button.clicked.connect(self.send_data_and_await_response)
+        self.send_upd_button.show()
+
+    def __lw_send_spi_button__(self):
+        """__lw_send_spi_button__
+
+            Load button used to send spi data to Crawler.
+        :return: None
+        """
+        self.send_spi_button = QPushButton('SEND SPI DATA', self)
+        self.send_spi_button.resize(self.send_spi_button.sizeHint())
+        self.send_spi_button.move(20, 120)
+        self.send_spi_button.setToolTip('send to Crawler')
+        self.send_spi_button.clicked.connect(self.send_spi_data)
+        self.send_spi_button.show()
 
     def __load_window__(self):
         """__load_window__
@@ -171,6 +199,22 @@ class CrawlerGUI(QWidget):
         response = self.__connection__.send_package_and_get_response(data)
         LOGGER.info(response)
         
+    def send_spi_data(self):
+        """
+
+        :return:
+        """
+        LOGGER.info("Sending SPI data")
+        spi_cmd_id = chr(int(self.spi_data_holder[0].text()))
+        spi_data_0 = chr(int(self.spi_data_holder[1].text()))
+        spi_data_1 = chr(int(self.spi_data_holder[2].text()))
+        spi_data_2 = chr(int(self.spi_data_holder[3].text()))
+        spi_data_3 = chr(int(self.spi_data_holder[4].text()))
+
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+
+        response = self.__connection__.send_package_and_get_response(udp_frame)
+        LOGGER.info(response)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

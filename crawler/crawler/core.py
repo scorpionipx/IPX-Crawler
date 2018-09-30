@@ -89,6 +89,14 @@ class Crawler:
         cmd_id = package[package.find("$i") + 2:package.find("$d")]
         data = package[package.find("$d") + 2:]
 
+        try:
+            cmd_id = int(cmd_id)
+            if cmd_id == 50:
+                LOGGER.info("{}".format(data.split()))
+                pass
+        except:
+            pass
+
         LOGGER.info("CMD_ID: {}".format(cmd_id))
         LOGGER.info("DATA: {}".format(data))
 
