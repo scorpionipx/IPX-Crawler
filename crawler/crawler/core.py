@@ -92,7 +92,11 @@ class Crawler:
         try:
             cmd_id = int(cmd_id)
             if cmd_id == 50:
-                spi_data = data.split()
+                spi_raw_data = data.split()
+                spi_data = []
+                for raw_data in spi_raw_data:
+                    spi_data.append(int(raw_data))
+
                 LOGGER.info("{}".format(spi_data))
                 pass
         except:
