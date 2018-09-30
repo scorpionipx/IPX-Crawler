@@ -86,8 +86,11 @@ class Crawler:
         :type package: str
         :return:
         """
-        cmd_id = package[package.find("$i") + 1:package.find("$d")]
+        cmd_id = package[package.find("$i") + 2:package.find("$d")]
+        data = package[package.find("$d") + 2:]
+
         LOGGER.info("CMD_ID: {}".format(cmd_id))
+        LOGGER.info("DATA: {}".format(data))
 
     def speak(self, text):
         """speak
