@@ -97,7 +97,9 @@ class Crawler:
                 for raw_data in spi_raw_data:
                     spi_data.append(int(raw_data))
 
-                LOGGER.info("{}".format(spi_data))
+                LOGGER.info("SPI DATA RECEIVED: {}, type {}".format(spi_data, type(spi_data)))
+                for spi_d in spi_data:
+                    LOGGER.info(spi_d)
                 pass
         except:
             pass
