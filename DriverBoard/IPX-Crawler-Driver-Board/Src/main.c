@@ -47,6 +47,13 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 uint8_t spi_buffer = 0x00;
+struct ipx_spi_command {
+  unsigned short id;
+  unsigned short data_0;
+  unsigned short data_1;
+  unsigned short data_2;
+  unsigned short data_3;
+} ipx_command;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -60,6 +67,9 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN 0 */
 void spi_data_handler(uint8_t spi_buffer);
+void display_command_header(void);
+void display_command(void);
+void execute_command(struct ipx_spi_command command);
 
 unsigned short pos = 0;
 /* USER CODE END 0 */
@@ -86,81 +96,32 @@ int main(void)
   MX_TIM4_Init();
 
   /* USER CODE BEGIN 2 */
-  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, GPIO_PIN_SET);
 
   HAL_SPI_Receive_IT(&hspi4, &spi_buffer, 1);
+
   TFT_init();
   TFT_on_off(0x29);
   TFT_fill(Black);
 
   print_str(60, 0, 1, Green, Black, "ScorpionIPX Crawler Driver Board v0.0.1");
-  print_str(0, 8, 1, Green, Black, "front track direction:");
-  print_str(0, 16, 1, Green, Black, "track power:");
+
+  display_command_header();
+
+  init_tracks_control();
+  display_tracks_info_header();
+  display_tracks_info();
 
   HAL_TIM_Base_Start(&htim4);
-
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_4);
-
-  uint8_t dc = 101;
-  uint8_t dir = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  HAL_Delay(50);
-	  // HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_14);
-	  dc ++;
-
-	  if(dc > 100)
-	  {
-		  HAL_Delay(1350);
-		  dc = 0;
-		  stop_tracks();
-		  HAL_Delay(850);
-		  dir ++;
-		  if(dir & 1)
-		  {
-			  print_str(138, 8, 1, Green, Black, "backward");
-		  }
-		  else
-		  {
-			  print_str(138, 8, 1, Green, Black, "forward ");
-		  }
-	  }
-	  /*
-	  if(__HAL_TIM_GET_COMPARE(&htim4, TIM_CHANNEL_1) >= 99)
-	  {
-		  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, 0);
-		  HAL_Delay(5000);
-	  }
-	  __HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, __HAL_TIM_GET_COMPARE(&htim4, TIM_CHANNEL_1) + 1);
-	  */
-	  if(dir & 1)
-	  {
-		  fl_track_backward(dc);
-		  fr_track_backward(dc);
-
-		  rl_track_backward(dc);
-		  rr_track_backward(dc);
-	  }
-	  else
-	  {
-		  fl_track_forward(dc);
-		  fr_track_forward(dc);
-
-		  rl_track_forward(dc);
-		  rr_track_forward(dc);
-	  }
-
-	  print_str(84, 16, 1, Green, Black, Itoa(dc, 10, 3));
-	  print_str(102, 16, 1, Green, Black, "%");
-
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
@@ -238,10 +199,45 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 	HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_14);
 	HAL_SPI_Receive_IT(&hspi4, &spi_buffer, 1);
 	spi_data_handler(spi_buffer);
+	switch(pos)
+	{
+	case 0:
+	{
+		ipx_command.id = spi_buffer;
+		break;
+	}
+	case 1:
+	{
+		ipx_command.data_0 = spi_buffer;
+		break;
+	}
+	case 2:
+	{
+		ipx_command.data_1 = spi_buffer;
+		break;
+	}
+	case 3:
+	{
+		ipx_command.data_2 = spi_buffer;
+		break;
+	}
+	case 4:
+	{
+		ipx_command.data_3 = spi_buffer;
+		display_command();
+		execute_command(ipx_command);
+		break;
+	}
+	default:
+		pos = 0;
+		break;
+	}
+
 	pos ++;
-
-
-	print_str(84, 36 + (10 * (pos & 1)), 1, Green, Black, Itoa(spi_buffer, 10, 3));
+	if(pos > 4)
+	{
+		pos = 0;
+	}
 }
 
 void spi_data_handler(uint8_t spi_buffer)
@@ -260,6 +256,63 @@ void spi_data_handler(uint8_t spi_buffer)
 	  {
 		  // HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, GPIO_PIN_SET);
 	  }
+}
+
+void display_command_header(void)
+{
+	int x = 10;
+	int y = 32;
+	int spacing = 8;
+
+	print_str(x, y, 1, Green, Black, "IPX COMMAND");
+	print_str(x, y + spacing, 1, Green, Black, "ID: N/A");
+	print_str(x, y + spacing * 2, 1, Green, Black, "DATA_0: N/A");
+	print_str(x, y + spacing * 3, 1, Green, Black, "DATA_1: N/A");
+	print_str(x, y + spacing * 4, 1, Green, Black, "DATA_2: N/A");
+	print_str(x, y + spacing * 5, 1, Green, Black, "DATA_3: N/A");
+}
+void display_command(void)
+{
+	int x = 10;
+	int y = 32;
+	int spacing = 8;
+
+	print_str(x + 6 * 4, y + spacing, 1, Green, Black, Itoa(ipx_command.id, 10, 3));
+	print_str(x + 6 * 8, y + spacing * 2, 1, Green, Black, Itoa(ipx_command.data_0, 10, 3));
+	print_str(x + 6 * 8, y + spacing * 3, 1, Green, Black, Itoa(ipx_command.data_1, 10, 3));
+	print_str(x + 6 * 8, y + spacing * 4, 1, Green, Black, Itoa(ipx_command.data_2, 10, 3));
+	print_str(x + 6 * 8, y + spacing * 5, 1, Green, Black, Itoa(ipx_command.data_3, 10, 3));
+}
+
+void execute_command(struct ipx_spi_command command)
+{
+	switch(command.id)
+	{
+		case 1:
+		{
+			set_fl_track_dc(command.data_0);
+			set_fr_track_dc(command.data_1);
+			set_rl_track_dc(command.data_2);
+			set_rr_track_dc(command.data_3);
+			display_tracks_info();
+			break;
+		}
+
+		case 2:
+		{
+			set_fl_track_direction(command.data_0);
+			set_fr_track_direction(command.data_1);
+			set_rl_track_direction(command.data_2);
+			set_rr_track_direction(command.data_3);
+			display_tracks_info();
+			break;
+		}
+
+		default:
+		{
+			break;
+		}
+	}
 }
 /* USER CODE END 4 */
 

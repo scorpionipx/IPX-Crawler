@@ -29,7 +29,7 @@ Src/tracks_driver.o: ../Src/tracks_driver.c \
  D:/Documents/Programming/Repositories/IPXCrawler/DriverBoard/IPX-Crawler-Driver-Board/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
  D:/Documents/Programming/Repositories/IPXCrawler/DriverBoard/IPX-Crawler-Driver-Board/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  D:/Documents/Programming/Repositories/IPXCrawler/DriverBoard/IPX-Crawler-Driver-Board/Inc/tim.h \
- ../Src/tracks_driver.h
+ ../Src/tracks_driver.h ../Src/ili9341.h ../Src/font.h
 
 D:/Documents/Programming/Repositories/IPXCrawler/DriverBoard/IPX-Crawler-Driver-Board/Inc/gpio.h:
 
@@ -92,3 +92,7 @@ D:/Documents/Programming/Repositories/IPXCrawler/DriverBoard/IPX-Crawler-Driver-
 D:/Documents/Programming/Repositories/IPXCrawler/DriverBoard/IPX-Crawler-Driver-Board/Inc/tim.h:
 
 ../Src/tracks_driver.h:
+
+../Src/ili9341.h:
+
+../Src/font.h:
