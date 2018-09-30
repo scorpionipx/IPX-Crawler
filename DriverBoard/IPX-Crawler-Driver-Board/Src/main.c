@@ -46,7 +46,7 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+uint8_t spi_buffer = 0x00;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,7 +59,9 @@ void Error_Handler(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+void spi_data_handler(uint8_t spi_buffer);
 
+unsigned short pos = 0;
 /* USER CODE END 0 */
 
 int main(void)
@@ -84,11 +86,15 @@ int main(void)
   MX_TIM4_Init();
 
   /* USER CODE BEGIN 2 */
+  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, GPIO_PIN_SET);
+
+  HAL_SPI_Receive_IT(&hspi4, &spi_buffer, 1);
   TFT_init();
   TFT_on_off(0x29);
   TFT_fill(Black);
 
-  print_str(60, 0, 1, Green, Black, "ScorpionIPX Crawler Driver Board");
+  print_str(60, 0, 1, Green, Black, "ScorpionIPX Crawler Driver Board v0.0.1");
   print_str(0, 8, 1, Green, Black, "front track direction:");
   print_str(0, 16, 1, Green, Black, "track power:");
 
@@ -108,7 +114,8 @@ int main(void)
   while (1)
   {
 	  HAL_Delay(50);
-	  HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_14);dc ++;
+	  // HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_14);
+	  dc ++;
 
 	  if(dc > 100)
 	  {
@@ -226,7 +233,34 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+	HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_14);
+	HAL_SPI_Receive_IT(&hspi4, &spi_buffer, 1);
+	spi_data_handler(spi_buffer);
+	pos ++;
 
+
+	print_str(84, 36 + (10 * (pos & 1)), 1, Green, Black, Itoa(spi_buffer, 10, 3));
+}
+
+void spi_data_handler(uint8_t spi_buffer)
+{
+	  if(spi_buffer == 0x0f)
+	  {
+		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, GPIO_PIN_RESET);
+	  }
+	  else if (spi_buffer == 0xf0)
+	  {
+		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, GPIO_PIN_RESET);
+	  }
+	  else
+	  {
+		  // HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, GPIO_PIN_SET);
+	  }
+}
 /* USER CODE END 4 */
 
 /**

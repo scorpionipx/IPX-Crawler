@@ -50,7 +50,7 @@ void MX_SPI4_Init(void)
 
   hspi4.Instance = SPI4;
   hspi4.Init.Mode = SPI_MODE_SLAVE;
-  hspi4.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi4.Init.Direction = SPI_DIRECTION_2LINES_RXONLY;
   hspi4.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi4.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi4.Init.CLKPhase = SPI_PHASE_1EDGE;
@@ -103,10 +103,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     /**SPI4 GPIO Configuration    
     PE2     ------> SPI4_SCK
     PE4     ------> SPI4_NSS
-    PE5     ------> SPI4_MISO
     PE6     ------> SPI4_MOSI 
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;
+    GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_4|GPIO_PIN_6;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -160,10 +159,9 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
     /**SPI4 GPIO Configuration    
     PE2     ------> SPI4_SCK
     PE4     ------> SPI4_NSS
-    PE5     ------> SPI4_MISO
     PE6     ------> SPI4_MOSI 
     */
-    HAL_GPIO_DeInit(GPIOE, GPIO_PIN_2|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6);
+    HAL_GPIO_DeInit(GPIOE, GPIO_PIN_2|GPIO_PIN_4|GPIO_PIN_6);
 
     /* Peripheral interrupt Deinit*/
     HAL_NVIC_DisableIRQ(SPI4_IRQn);
