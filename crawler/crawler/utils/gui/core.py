@@ -212,9 +212,71 @@ class CrawlerGUI(QWidget):
         spi_data_3 = chr(int(self.spi_data_holder[4].text()))
 
         udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
-
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
+
+    def keyPressEvent(self, e):
+
+        spi_cmd_id = chr(2)
+        spi_data_0 = chr(1)
+        spi_data_1 = chr(1)
+        spi_data_2 = chr(1)
+        spi_data_3 = chr(1)
+
+        key_pressed = e.key()
+        if key_pressed == Qt.Key_W:
+            spi_cmd_id = chr(2)
+            spi_data_0 = chr(1)
+            spi_data_1 = chr(1)
+            spi_data_2 = chr(1)
+            spi_data_3 = chr(1)
+            
+        elif key_pressed == Qt.Key_S:
+            spi_cmd_id = chr(2)
+            spi_data_0 = chr(2)
+            spi_data_1 = chr(2)
+            spi_data_2 = chr(2)
+            spi_data_3 = chr(2)
+            
+        elif key_pressed == Qt.Key_A:
+            spi_cmd_id = chr(2)
+            spi_data_0 = chr(1)
+            spi_data_1 = chr(2)
+            spi_data_2 = chr(1)
+            spi_data_3 = chr(2)
+            
+        elif key_pressed == Qt.Key_D:
+            spi_cmd_id = chr(2)
+            spi_data_0 = chr(2)
+            spi_data_1 = chr(1)
+            spi_data_2 = chr(2)
+            spi_data_3 = chr(1)
+            
+        elif key_pressed == Qt.Key_Z:
+            spi_cmd_id = chr(2)
+            spi_data_0 = chr(0)
+            spi_data_1 = chr(0)
+            spi_data_2 = chr(0)
+            spi_data_3 = chr(0)
+
+        elif key_pressed == Qt.Key_P:
+            spi_cmd_id = chr(1)
+            spi_data_0 = chr(80)
+            spi_data_1 = chr(80)
+            spi_data_2 = chr(80)
+            spi_data_3 = chr(80)
+
+        elif key_pressed == Qt.Key_O:
+            spi_cmd_id = chr(1)
+            spi_data_0 = chr(0)
+            spi_data_1 = chr(0)
+            spi_data_2 = chr(0)
+            spi_data_3 = chr(0)
+
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        response = self.__connection__.send_package_and_get_response(udp_frame)
+        LOGGER.info(response)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
