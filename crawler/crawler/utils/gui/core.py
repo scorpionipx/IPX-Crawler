@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QApplication, QDesktopWidget, QLabel, QPushButton, QInputDialog
+from PyQt5.QtWidgets import QWidget, QApplication, QDesktopWidget, QLabel, QPushButton, QInputDialog, QLineEdit
 from PyQt5.QtGui import QIcon, QPixmap, QFont
 from PyQt5.QtCore import Qt, QSize
 
@@ -31,8 +31,8 @@ class CrawlerGUI(QWidget):
         """Constructor
 
         """
-        self.__ip__ = None
-        self.__port__ = None
+        self.__ip__ = '192.168.0.103'
+        self.__port__ = 8888
         self.__connection__ = None
 
         super().__init__()
@@ -71,154 +71,18 @@ class CrawlerGUI(QWidget):
         self.__lw_settings_button__()
         self.__lw_connect_button__()
         self.__lw_send_button__()
-        # self.__lw_hcu__()
-        # self.__lw_ecu__()
-        # self.__lw_imess__()
+        self.__lw_udp_data_entry__()
 
-    def __lw_imess__(self):
-        """__lw_imess__
+    def __lw_udp_data_entry__(self):
+        """__lw_udp_data_entry__
 
-            Load widgets used to draw imess connector.
-        :return: None
+            Load line edit entry used to send data to Crawler.
+        :return:
         """
-        x_pos = 180
-        y_pos = 140
-        imess_length = 500
-        imess_width = 50
-        draw_width = 3
-        imess_color = "000000"
-
-        imess_h = QLabel(self)
-        imess_h.resize(imess_width, draw_width)
-        imess_h.move(x_pos, y_pos)
-        imess_h.setStyleSheet("background-color:#" + imess_color)
-        imess_h.show()
-
-        imess_h = QLabel(self)
-        imess_h.resize(imess_width + draw_width, draw_width)
-        imess_h.move(x_pos, y_pos + imess_length)
-        imess_h.setStyleSheet("background-color:#" + imess_color)
-        imess_h.show()
-
-        imess_v = QLabel(self)
-        imess_v.resize(draw_width, imess_length)
-        imess_v.move(x_pos, y_pos)
-        imess_v.setStyleSheet("background-color:#" + imess_color)
-        imess_v.show()
-
-        imess_v = QLabel(self)
-        imess_v.resize(draw_width, imess_length)
-        imess_v.move(x_pos + imess_width, y_pos)
-        imess_v.setStyleSheet("background-color:#" + imess_color)
-        imess_v.show()
-
-        text_font = QFont()
-        text_font.setPointSize(16)
-        text_font.setBold(True)
-
-        imess_name = QLabel(self)
-        imess_name.setText('I\nM\nE\nS\nS')
-        imess_name.setFont(text_font)
-        imess_name.resize(imess_name.sizeHint())
-        imess_name.move(192, 300)
-        imess_name.show()
-
-    def __lw_hcu__(self):
-        """__lw_hcu__
-
-            Load widgets used to draw HCU DB50 connector.
-        :return: None
-        """
-        x_pos = 1170
-        y_pos = 100
-        hcu_length = 790
-        hcu_width = 80
-        draw_width = 3
-        hcu_color = "000000"
-
-        hcu_h = QLabel(self)
-        hcu_h.resize(hcu_width, draw_width)
-        hcu_h.move(x_pos, y_pos)
-        hcu_h.setStyleSheet("background-color:#" + hcu_color)
-        hcu_h.show()
-
-        hcu_h = QLabel(self)
-        hcu_h.resize(hcu_width + draw_width, draw_width)
-        hcu_h.move(x_pos, y_pos + hcu_length)
-        hcu_h.setStyleSheet("background-color:#" + hcu_color)
-        hcu_h.show()
-
-        hcu_v = QLabel(self)
-        hcu_v.resize(draw_width, hcu_length)
-        hcu_v.move(x_pos, y_pos)
-        hcu_v.setStyleSheet("background-color:#" + hcu_color)
-        hcu_v.show()
-
-        hcu_v = QLabel(self)
-        hcu_v.resize(draw_width, hcu_length)
-        hcu_v.move(x_pos + hcu_width, y_pos)
-        hcu_v.setStyleSheet("background-color:#" + hcu_color)
-        hcu_v.show()
-
-        text_font = QFont()
-        text_font.setPointSize(16)
-        text_font.setBold(True)
-
-        hcu_name = QLabel(self)
-        hcu_name.setText('HCU')
-        hcu_name.setFont(text_font)
-        hcu_name.resize(hcu_name.sizeHint())
-        hcu_name.move(1182, 500)
-        hcu_name.show()
-
-    def __lw_ecu__(self):
-        """__lw_ecu__
-
-            Load widgets used to draw ecu DB50 connector.
-        :return: None
-        """
-        x_pos = 50
-        y_pos = 100
-        ecu_length = 790
-        ecu_width = 80
-        draw_width = 3
-        ecu_color = "000000"
-
-        ecu_h = QLabel(self)
-        ecu_h.resize(ecu_width, draw_width)
-        ecu_h.move(x_pos, y_pos)
-        ecu_h.setStyleSheet("background-color:#" + ecu_color)
-        ecu_h.show()
-
-        ecu_h = QLabel(self)
-        ecu_h.resize(ecu_width + draw_width, draw_width)
-        ecu_h.move(x_pos, y_pos + ecu_length)
-        ecu_h.setStyleSheet("background-color:#" + ecu_color)
-        ecu_h.show()
-
-        ecu_v = QLabel(self)
-        ecu_v.resize(draw_width, ecu_length)
-        ecu_v.move(x_pos, y_pos)
-        ecu_v.setStyleSheet("background-color:#" + ecu_color)
-        ecu_v.show()
-
-        ecu_v = QLabel(self)
-        ecu_v.resize(draw_width, ecu_length)
-        ecu_v.move(x_pos + ecu_width, y_pos)
-        ecu_v.setStyleSheet("background-color:#" + ecu_color)
-        ecu_v.show()
-
-        text_font = QFont()
-        text_font.setPointSize(16)
-        text_font.setBold(True)
-
-        ecu_name = QLabel(self)
-        ecu_name.setText('ECU')
-        ecu_name.setAlignment(Qt.AlignCenter)
-        ecu_name.setFont(text_font)
-        ecu_name.resize(ecu_name.sizeHint())
-        ecu_name.move(64, 500)
-        ecu_name.show()
+        self.udp_data_entry = QLineEdit(self)
+        self.udp_data_entry.move(20, 95)
+        self.udp_data_entry.resize(500, 20)
+        self.udp_data_entry.show()
 
     def __lw_settings_button__(self):
         """__lw_settings_button__
@@ -256,7 +120,7 @@ class CrawlerGUI(QWidget):
         self.send_button.resize(self.send_button.sizeHint())
         self.send_button.move(20, 70)
         self.send_button.setToolTip('send to Crawler')
-        self.send_button.clicked.connect(self.send_data_and_await_response("Hello"))
+        self.send_button.clicked.connect(self.send_data_and_await_response)
         self.send_button.show()
 
     def __load_window__(self):
@@ -295,13 +159,15 @@ class CrawlerGUI(QWidget):
         :return:
         """
         self.__connection__ = Client(host=self.__ip__, port=self.__port__)
+        self.__connection__.connect_to_host()
 
-    def send_data_and_await_response(self, data):
+    def send_data_and_await_response(self):
         """
         
         :param data: 
         :return: 
         """
+        data = self.udp_data_entry.text()
         response = self.__connection__.send_package_and_get_response(data)
         LOGGER.info(response)
         
