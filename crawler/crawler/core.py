@@ -101,7 +101,8 @@ class Crawler:
                 for spi_d in spi_data:
                     LOGGER.info("DATA: {}".format(int(spi_d)))
                 pass
-        except:
+        except Exception as err:
+            LOGGER.info(err)
             pass
 
         LOGGER.info("CMD_ID: {}".format(cmd_id))
