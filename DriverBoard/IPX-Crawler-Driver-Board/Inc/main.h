@@ -122,10 +122,6 @@
 #define D6_GPIO_Port GPIOE
 #define D7_Pin GPIO_PIN_10
 #define D7_GPIO_Port GPIOE
-#define D8_Pin GPIO_PIN_11
-#define D8_GPIO_Port GPIOE
-#define D9_Pin GPIO_PIN_12
-#define D9_GPIO_Port GPIOE
 #define D10_Pin GPIO_PIN_13
 #define D10_GPIO_Port GPIOE
 #define D11_Pin GPIO_PIN_14

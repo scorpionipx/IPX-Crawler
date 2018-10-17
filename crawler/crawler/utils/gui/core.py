@@ -8,6 +8,8 @@ import logging
 import os.path
 import sys
 
+from time import sleep
+
 from crawler.version import __version__
 from crawler.utils.connection.client import Client
 
@@ -31,7 +33,7 @@ class CrawlerGUI(QWidget):
         """Constructor
 
         """
-        self.__ip__ = '192.168.0.103'
+        self.__ip__ = '192.168.0.109'
         self.__port__ = 8888
         self.__connection__ = None
 
@@ -74,6 +76,98 @@ class CrawlerGUI(QWidget):
         self.__lw_udp_data_entry__()
         self.__lw_send_spi_button__()
         self.__lw_spi_data_entry__()
+        self.__lw_power_data_entry__()
+        self.__lw_direction_data_entry__()
+        self.__lw_motor_control__()
+        self.__lw_lights_control__()
+        
+    def __lw_motor_control__(self):
+        """__lw_motor_control__
+        
+        :return: 
+        """
+        x = 380
+        y = 260
+        
+        self.send_power_button = QPushButton('SEND POWER', self)
+        self.send_power_button.resize(self.send_power_button.sizeHint())
+        self.send_power_button.move(x, y)
+        self.send_power_button.setToolTip('Set specified power')
+        self.send_power_button.clicked.connect(self.set_power)
+        self.send_power_button.show()
+        
+        self.send_direction_button = QPushButton('SEND DIRECTIONS', self)
+        self.send_direction_button.resize(self.send_direction_button.sizeHint())
+        self.send_direction_button.move(x, y + 25)
+        self.send_direction_button.setToolTip('Set specified direction')
+        self.send_direction_button.clicked.connect(self.set_directions)
+        self.send_direction_button.show()
+        
+        self.send_motor_control_data = QPushButton('MOTOR CONTROL', self)
+        self.send_motor_control_data.resize(self.send_motor_control_data.sizeHint())
+        self.send_motor_control_data.move(x, y + 50)
+        self.send_motor_control_data.setToolTip('Set specified power and directions')
+        self.send_motor_control_data.clicked.connect(self.set_motor_control)
+        self.send_motor_control_data.show()
+
+    def __lw_lights_control__(self):
+        """__lw_lights_control__
+
+        :return: 
+        """
+        x = 500
+        y = 260
+
+        self.turn_on_headlights = QPushButton('HEADLIGHTS ON', self)
+        self.turn_on_headlights.resize(self.turn_on_headlights.sizeHint())
+        self.turn_on_headlights.move(x, y)
+        self.turn_on_headlights.setToolTip('Turn on headlights')
+        self.turn_on_headlights.clicked.connect(self.turn_lights_on)
+        self.turn_on_headlights.show()
+
+        self.turn_off_headlights = QPushButton('HEADLIGHTS OFF', self)
+        self.turn_off_headlights.resize(self.turn_off_headlights.sizeHint())
+        self.turn_off_headlights.move(x, y + 25)
+        self.turn_off_headlights.setToolTip('Turn off headlights')
+        self.turn_off_headlights.clicked.connect(self.turn_lights_off)
+        self.turn_off_headlights.show()
+
+    def set_directions(self):
+        """set_directions
+
+        :return:
+        """
+        spi_cmd_id = chr(2)
+        spi_data_0 = chr(int(self.motor_direction_holder[0].text()))
+        spi_data_1 = chr(int(self.motor_direction_holder[1].text()))
+        spi_data_2 = chr(int(self.motor_direction_holder[2].text()))
+        spi_data_3 = chr(int(self.motor_direction_holder[3].text()))
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        response = self.__connection__.send_package_and_get_response(udp_frame)
+        LOGGER.info(response)
+
+    def set_power(self):
+        """set_power
+
+        :return:
+        """
+        spi_cmd_id = chr(1)
+        spi_data_0 = chr(int(self.motor_power_holder[0].text()))
+        spi_data_1 = chr(int(self.motor_power_holder[1].text()))
+        spi_data_2 = chr(int(self.motor_power_holder[2].text()))
+        spi_data_3 = chr(int(self.motor_power_holder[3].text()))
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        response = self.__connection__.send_package_and_get_response(udp_frame)
+        LOGGER.info(response)
+
+    def set_motor_control(self):
+        """set_motor_control
+
+        :return:
+        """
+        self.set_directions()
+        sleep(0.005)
+        self.set_power()
 
     def __lw_spi_data_entry__(self):
         """__lw_spi_data_entry__
@@ -87,6 +181,71 @@ class CrawlerGUI(QWidget):
             self.spi_data_holder[_].move(20 + _ * 60, 145)
             self.spi_data_holder[_].resize(50, 20)
             self.spi_data_holder[_].show()
+
+
+    def __lw_power_data_entry__(self):
+        """__lw_power_data_entry__
+
+            Load line edit entry used to send motors' power over spi data to Crawler.
+        :return:
+        """
+        x = 20
+        y = 260
+        self.motor_power_holder = [None] * 5
+        for _ in range(5):
+            self.motor_power_holder[_] = QLineEdit(self)
+            self.motor_power_holder[_].move(x + _ * 60, y)
+            self.motor_power_holder[_].resize(50, 20)
+            self.motor_power_holder[_].show()
+        self.set_all_power_button = QPushButton('SAME POWER', self)
+        self.set_all_power_button.resize(self.set_all_power_button.sizeHint())
+        self.set_all_power_button.move(x + _ * 60, y - 25)
+        self.set_all_power_button.setToolTip('Connect to Crawler')
+        self.set_all_power_button.clicked.connect(self.__all_same_power__)
+        self.set_all_power_button.show()
+
+        self.motor_power_holder[-1].resize(self.set_all_power_button.size())
+        
+    def __lw_direction_data_entry__(self):
+        """__lw_direction_data_entry__
+
+            Load line edit entry used to send motors' direction over spi data to Crawler.
+        :return:
+        """
+        x = 20
+        y = 320
+        self.motor_direction_holder = [None] * 5
+        for _ in range(5):
+            self.motor_direction_holder[_] = QLineEdit(self)
+            self.motor_direction_holder[_].move(x + _ * 60, y)
+            self.motor_direction_holder[_].resize(50, 20)
+            self.motor_direction_holder[_].show()
+        self.set_all_directions_button = QPushButton('SAME DIRECTIONS', self)
+        self.set_all_directions_button.resize(self.set_all_directions_button.sizeHint())
+        self.set_all_directions_button.move(x + _ * 60, y - 25)
+        self.set_all_directions_button.setToolTip('Connect to Crawler')
+        self.set_all_directions_button.clicked.connect(self.__all_same_direction__)
+        self.set_all_directions_button.show()
+
+        self.motor_direction_holder[-1].resize(self.set_all_directions_button.size())
+
+    def __all_same_power__(self):
+        """
+
+        :return:
+        """
+        text = self.motor_power_holder[-1].text()
+        for _ in self.motor_power_holder:
+            _.setText(text)
+
+    def __all_same_direction__(self):
+        """
+
+        :return:
+        """
+        text = self.motor_direction_holder[-1].text()
+        for _ in self.motor_direction_holder:
+            _.setText(text)
 
     def __lw_udp_data_entry__(self):
         """__lw_udp_data_entry__
@@ -191,12 +350,109 @@ class CrawlerGUI(QWidget):
 
     def send_data_and_await_response(self):
         """
-        
-        :param data: 
+
         :return: 
         """
         data = self.udp_data_entry.text()
         response = self.__connection__.send_package_and_get_response(data)
+        LOGGER.info(response)
+
+    def set_direction_forward(self):
+        """set_direction_forward
+
+        :return:
+        """
+        spi_cmd_id = chr(2)
+        spi_data_0 = chr(1)
+        spi_data_1 = chr(1)
+        spi_data_2 = chr(1)
+        spi_data_3 = chr(1)
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        response = self.__connection__.send_package_and_get_response(udp_frame)
+        LOGGER.info(response)
+
+    def set_direction_backward(self):
+        """set_direction_backward
+
+        :return:
+        """
+        spi_cmd_id = chr(2)
+        spi_data_0 = chr(2)
+        spi_data_1 = chr(2)
+        spi_data_2 = chr(2)
+        spi_data_3 = chr(2)
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        response = self.__connection__.send_package_and_get_response(udp_frame)
+        LOGGER.info(response)
+
+    def stop_motors(self):
+        """stop_motors
+
+        :return:
+        """
+        spi_cmd_id = chr(2)
+        spi_data_0 = chr(0)
+        spi_data_1 = chr(0)
+        spi_data_2 = chr(0)
+        spi_data_3 = chr(0)
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        response = self.__connection__.send_package_and_get_response(udp_frame)
+        LOGGER.info(response)
+
+        sleep(.005)
+
+        spi_cmd_id = chr(1)
+        spi_data_0 = chr(0)
+        spi_data_1 = chr(0)
+        spi_data_2 = chr(0)
+        spi_data_3 = chr(0)
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        response = self.__connection__.send_package_and_get_response(udp_frame)
+        LOGGER.info(response)
+        
+    def turn_lights_on(self):
+        """turn_lights_on
+        
+        :return: 
+        """
+
+        spi_cmd_id = chr(3)
+        spi_data_0 = chr(1)
+        spi_data_1 = chr(1)
+        spi_data_2 = chr(0)
+        spi_data_3 = chr(0)
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        response = self.__connection__.send_package_and_get_response(udp_frame)
+        LOGGER.info(response)
+        
+    def turn_lights_off(self):
+        """turn_lights_off
+        
+        :return: 
+        """
+
+        spi_cmd_id = chr(3)
+        spi_data_0 = chr(0)
+        spi_data_1 = chr(0)
+        spi_data_2 = chr(0)
+        spi_data_3 = chr(0)
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        response = self.__connection__.send_package_and_get_response(udp_frame)
+        LOGGER.info(response)
+        
+    def set_power_(self):
+        """
+
+        :return:
+        """
+        spi_cmd_id = chr(1)
+        spi_data_0 = chr(int(self.spi_data_holder[1].text()))
+        spi_data_1 = chr(int(self.spi_data_holder[2].text()))
+        spi_data_2 = chr(int(self.spi_data_holder[3].text()))
+        spi_data_3 = chr(int(self.spi_data_holder[4].text()))
+
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
         
     def send_spi_data(self):
@@ -240,17 +496,17 @@ class CrawlerGUI(QWidget):
             
         elif key_pressed == Qt.Key_A:
             spi_cmd_id = chr(2)
-            spi_data_0 = chr(1)
-            spi_data_1 = chr(2)
-            spi_data_2 = chr(1)
-            spi_data_3 = chr(2)
-            
-        elif key_pressed == Qt.Key_D:
-            spi_cmd_id = chr(2)
             spi_data_0 = chr(2)
             spi_data_1 = chr(1)
             spi_data_2 = chr(2)
             spi_data_3 = chr(1)
+            
+        elif key_pressed == Qt.Key_D:
+            spi_cmd_id = chr(2)
+            spi_data_0 = chr(1)
+            spi_data_1 = chr(2)
+            spi_data_2 = chr(1)
+            spi_data_3 = chr(2)
             
         elif key_pressed == Qt.Key_Z:
             spi_cmd_id = chr(2)
@@ -261,10 +517,10 @@ class CrawlerGUI(QWidget):
 
         elif key_pressed == Qt.Key_P:
             spi_cmd_id = chr(1)
-            spi_data_0 = chr(80)
-            spi_data_1 = chr(80)
-            spi_data_2 = chr(80)
-            spi_data_3 = chr(80)
+            spi_data_0 = chr(75)
+            spi_data_1 = chr(75)
+            spi_data_2 = chr(75)
+            spi_data_3 = chr(75)
 
         elif key_pressed == Qt.Key_O:
             spi_cmd_id = chr(1)

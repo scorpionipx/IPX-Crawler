@@ -5,6 +5,7 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../Src/gpio.c \
+../Src/headlights_driver.c \
 ../Src/ili9341.c \
 ../Src/main.c \
 ../Src/spi.c \
@@ -16,6 +17,7 @@ C_SRCS += \
 
 OBJS += \
 ./Src/gpio.o \
+./Src/headlights_driver.o \
 ./Src/ili9341.o \
 ./Src/main.o \
 ./Src/spi.o \
@@ -27,6 +29,7 @@ OBJS += \
 
 C_DEPS += \
 ./Src/gpio.d \
+./Src/headlights_driver.d \
 ./Src/ili9341.d \
 ./Src/main.d \
 ./Src/spi.d \

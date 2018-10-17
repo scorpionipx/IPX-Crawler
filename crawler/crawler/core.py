@@ -5,6 +5,7 @@ from crawler.utils.connection.host2 import Host
 from crawler.utils.connection.settings import DEFAULT_PORT
 
 from crawler.utils.driver.core import CrawlerDriverBoardSTM
+from crawler.utils.voice import speak, LANGUAGE_LITERAL
 
 LOGGER = logging.getLogger('crawler')
 LOGGER.setLevel(logging.INFO)
@@ -77,6 +78,27 @@ class Crawler:
             if '$i' in decoded_package:
                 if '$d' in decoded_package:
                     self.decode_command(decoded_package)
+        
+    def speak(self, speak_data):
+        """speak
+
+            Speak provided speech.
+        :param speak_data: 
+        :return: 
+        """
+        speak_thread = threading.Thread(target=self.__speak__, args=(speak_data, ))
+        speak_thread.start()
+
+    def __speak__(self, speak_data):
+        """__speak__
+
+        :param speak_data:
+        :type speak_data: str
+        :return:
+        """
+        words = speak_data[:speak_data.find(LANGUAGE_LITERAL)]
+        lang = speak_data[speak_data.find(LANGUAGE_LITERAL):]
+        speak(speech=words, language=lang)
 
     def decode_command(self, package):
         """decode_command
@@ -101,6 +123,8 @@ class Crawler:
                     LOGGER.info("DATA: {}".format(spi_d))
 
                 self.driver.send_SPI_data(spi_data)
+            elif cmd_id == 51:
+                self.speak(data)
 
         except Exception as err:
             LOGGER.info(err)
@@ -108,13 +132,5 @@ class Crawler:
 
         LOGGER.info("CMD_ID: {}".format(cmd_id))
         LOGGER.info("DATA: {}".format(data))
-
-    def speak(self, text):
-        """speak
-            Speak provided speech.
-        :param text: text to be spoken as string.
-        :return: None
-        """
-        pass
 
 

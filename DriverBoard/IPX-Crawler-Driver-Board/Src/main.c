@@ -40,6 +40,7 @@
 /* USER CODE BEGIN Includes */
 #include "ili9341.h"
 #include "tracks_driver.h"
+#include "headlights_driver.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -97,11 +98,15 @@ int main(void)
 
   /* USER CODE BEGIN 2 */
 
+  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, SET);
   HAL_SPI_Receive_IT(&hspi4, &spi_buffer, 1);
 
   TFT_init();
   TFT_on_off(0x29);
   TFT_fill(Black);
+
+  HEADLIGHT_LEFT_ON;
+  HEADLIGHT_RIGHT_ON;
 
   print_str(60, 0, 1, Green, Black, "ScorpionIPX Crawler Driver Board v0.0.1");
 
@@ -197,8 +202,8 @@ void SystemClock_Config(void)
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 {
 	HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_14);
+	HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_13);
 	HAL_SPI_Receive_IT(&hspi4, &spi_buffer, 1);
-	spi_data_handler(spi_buffer);
 	switch(pos)
 	{
 	case 0:
@@ -305,6 +310,28 @@ void execute_command(struct ipx_spi_command command)
 			set_rl_track_direction(command.data_2);
 			set_rr_track_direction(command.data_3);
 			display_tracks_info();
+			break;
+		}
+
+		case 3:
+		{
+			if(command.data_0)
+			{
+				HEADLIGHT_LEFT_ON;
+			}
+			else
+			{
+				HEADLIGHT_LEFT_OFF;
+			}
+			if(command.data_1)
+			{
+				HEADLIGHT_RIGHT_ON;
+			}
+			else
+			{
+				HEADLIGHT_RIGHT_OFF;
+			}
+
 			break;
 		}
 

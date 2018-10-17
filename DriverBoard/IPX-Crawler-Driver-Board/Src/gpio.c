@@ -75,8 +75,6 @@
      PE8   ------> FMC_D5_DA5
      PE9   ------> FMC_D6_DA6
      PE10   ------> FMC_D7_DA7
-     PE11   ------> FMC_D8_DA8
-     PE12   ------> FMC_D9_DA9
      PE13   ------> FMC_D10_DA10
      PE14   ------> FMC_D11_DA11
      PE15   ------> FMC_D12_DA12
@@ -135,6 +133,9 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(ACP_RST_GPIO_Port, ACP_RST_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_11|GPIO_PIN_12, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, RDX_Pin|WRX_DCX_Pin|GPIO_PIN_0|GPIO_PIN_1 
@@ -235,14 +236,21 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : PEPin PEPin PEPin PEPin 
                            PEPin PEPin PEPin PEPin 
-                           PEPin PEPin PEPin */
+                           PEPin */
   GPIO_InitStruct.Pin = D4_Pin|D5_Pin|D6_Pin|D7_Pin 
-                          |D8_Pin|D9_Pin|D10_Pin|D11_Pin 
-                          |D12_Pin|NBL0_Pin|NBL1_Pin;
+                          |D10_Pin|D11_Pin|D12_Pin|NBL0_Pin 
+                          |NBL1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.Alternate = GPIO_AF12_FMC;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PE11 PE12 */
+  GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_12;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PBPin PBPin */
