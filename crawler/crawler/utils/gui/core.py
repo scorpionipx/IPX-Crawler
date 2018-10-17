@@ -472,6 +472,7 @@ class CrawlerGUI(QWidget):
         LOGGER.info(response)
 
     def keyPressEvent(self, e):
+        return
 
         spi_cmd_id = chr(2)
         spi_data_0 = chr(1)

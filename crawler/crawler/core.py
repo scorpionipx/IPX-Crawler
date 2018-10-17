@@ -97,7 +97,7 @@ class Crawler:
         :return:
         """
         words = speak_data[:speak_data.find(LANGUAGE_LITERAL)]
-        lang = speak_data[speak_data.find(LANGUAGE_LITERAL):]
+        lang = speak_data[speak_data.find(LANGUAGE_LITERAL) + len(LANGUAGE_LITERAL):]
         speak(speech=words, language=lang)
 
     def decode_command(self, package):
@@ -124,6 +124,7 @@ class Crawler:
 
                 self.driver.send_SPI_data(spi_data)
             elif cmd_id == 51:
+                LOGGER.info("SPEECH DATA: {}".format(data))
                 self.speak(data)
 
         except Exception as err:
