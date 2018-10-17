@@ -1,8 +1,10 @@
-from PyQt5.QtWidgets import QWidget, QApplication, QDesktopWidget, QLabel, QPushButton, QInputDialog, QLineEdit
+from PyQt5.QtWidgets import QWidget, QApplication, QDesktopWidget, QTextEdit, QPushButton, QInputDialog, QLineEdit, \
+    QComboBox
 from PyQt5.QtGui import QIcon, QPixmap, QFont
 from PyQt5.QtCore import Qt, QSize
 
 from functools import partial
+from crawler.utils.voice import LANGUAGE_LITERAL
 
 import logging
 import os.path
@@ -80,6 +82,49 @@ class CrawlerGUI(QWidget):
         self.__lw_direction_data_entry__()
         self.__lw_motor_control__()
         self.__lw_lights_control__()
+
+        self.__create_speech_line_edit__()
+        self.__create_select_language_combobox__()
+        self.__create_speak_button__()
+
+    def __create_speech_line_edit__(self):
+        """__create_speech_line_edit__
+            Create the line edit used to store as text the speech for Crawler.
+        :return: None
+        """
+        x = 10
+        y = 400
+        self.speech_text_edit = QTextEdit(self)
+        self.speech_text_edit.move(x, y)
+        self.speech_text_edit.resize(400, 80)
+        self.speech_text_edit.show()
+        self.speech_text_edit.setText("Hello! I am Crawler!")
+
+    def __create_select_language_combobox__(self):
+        """__create_select_language_combobox__
+            Creates the combobox used to select Crawler's speech language.
+        :return: None
+        """
+        x = 10
+        y = 490
+        self.language_select_combobox = QComboBox(self)
+        self.language_select_combobox.move(x, y)
+        self.language_select_combobox.addItem('en')
+        self.language_select_combobox.addItem('ro')
+        self.language_select_combobox.show()
+
+    def __create_speak_button__(self):
+        """__create_speak_button__
+            Creates the button used to tell Crawler to speak provided text.
+        :return: None
+        """
+        x = 250
+        y = 490
+        self.speak_button = QPushButton(self)
+        self.speak_button.move(x, y)
+        self.speak_button.setText('Speak')
+        self.speak_button.clicked.connect(self.speak)
+        self.speak_button.show()
         
     def __lw_motor_control__(self):
         """__lw_motor_control__
@@ -132,6 +177,20 @@ class CrawlerGUI(QWidget):
         self.turn_off_headlights.clicked.connect(self.turn_lights_off)
         self.turn_off_headlights.show()
 
+    def speak(self):
+        """
+
+        :return:
+        """
+        try:
+            udp_frame = '$i51$d' + self.speech_text_edit.toPlainText() + LANGUAGE_LITERAL + \
+                        str(self.language_select_combobox.currentText())
+            response = self.__connection__.send_package_and_get_response(udp_frame)
+
+            LOGGER.info(response)
+        except Exception as err:
+            LOGGER.info(err)
+
     def set_directions(self):
         """set_directions
 
@@ -181,6 +240,7 @@ class CrawlerGUI(QWidget):
             self.spi_data_holder[_].move(20 + _ * 60, 145)
             self.spi_data_holder[_].resize(50, 20)
             self.spi_data_holder[_].show()
+            self.spi_data_holder[_].setText("0")
 
 
     def __lw_power_data_entry__(self):
@@ -197,6 +257,8 @@ class CrawlerGUI(QWidget):
             self.motor_power_holder[_].move(x + _ * 60, y)
             self.motor_power_holder[_].resize(50, 20)
             self.motor_power_holder[_].show()
+            self.motor_power_holder[_].setText("0")
+
         self.set_all_power_button = QPushButton('SAME POWER', self)
         self.set_all_power_button.resize(self.set_all_power_button.sizeHint())
         self.set_all_power_button.move(x + _ * 60, y - 25)
@@ -220,6 +282,8 @@ class CrawlerGUI(QWidget):
             self.motor_direction_holder[_].move(x + _ * 60, y)
             self.motor_direction_holder[_].resize(50, 20)
             self.motor_direction_holder[_].show()
+            self.motor_direction_holder[_].setText("0")
+
         self.set_all_directions_button = QPushButton('SAME DIRECTIONS', self)
         self.set_all_directions_button.resize(self.set_all_directions_button.sizeHint())
         self.set_all_directions_button.move(x + _ * 60, y - 25)
@@ -257,6 +321,7 @@ class CrawlerGUI(QWidget):
         self.udp_data_entry.move(20, 95)
         self.udp_data_entry.resize(500, 20)
         self.udp_data_entry.show()
+        self.udp_data_entry.setText("udp frame")
 
     def __lw_settings_button__(self):
         """__lw_settings_button__
