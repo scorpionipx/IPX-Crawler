@@ -70,7 +70,7 @@ class Crawler:
 
             if 'spi' in decoded_package:
                 self.driver.send_SPI_data([1, 50, 50, 50, 50])
-            # self.connection.send_package(decoded_package)
+            self.connection.send_package(decoded_package)
 
             if 'stop_listening' in decoded_package:
                 self.connection.stop_listening()
