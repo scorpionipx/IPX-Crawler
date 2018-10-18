@@ -119,7 +119,7 @@ class Crawler:
                     spi_data.append(ord(char))
 
                 # LOGGER.info("SPI DATA RECEIVED: {}, type {}".format(spi_data, type(spi_data)))
-                for spi_d in spi_data:
+                # for spi_d in spi_data:
                     # LOGGER.info("DATA: {}".format(spi_d))
 
                 self.driver.send_SPI_data(spi_data)
