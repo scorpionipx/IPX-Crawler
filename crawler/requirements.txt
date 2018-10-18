@@ -1,1 +1,3 @@
 gtts
+PyQt5==5.10
+pygame

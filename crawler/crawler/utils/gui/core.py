@@ -1,19 +1,21 @@
 from PyQt5.QtWidgets import QWidget, QApplication, QDesktopWidget, QTextEdit, QPushButton, QInputDialog, QLineEdit, \
-    QComboBox
-from PyQt5.QtGui import QIcon, QPixmap, QFont
-from PyQt5.QtCore import Qt, QSize
+    QComboBox, QMessageBox, QLabel
 
-from functools import partial
-from crawler.utils.voice import LANGUAGE_LITERAL
+from PyQt5.QtCore import Qt
+
+from crawler.utils.gui.utils import DragButton
 
 import logging
 import os.path
 import sys
+import threading
 
 from time import sleep
 
 from crawler.version import __version__
 from crawler.utils.connection.client import Client
+import pygame
+
 
 LOGGER = logging.getLogger('crawler')
 LOGGER.level = logging.INFO
@@ -23,6 +25,7 @@ APP_SIZE_WIDTH = 800
 APP_SIZE_HEIGHT = 600
 
 CURRENT_DIR = os.path.dirname(__file__)
+LANGUAGE_LITERAL = 'ipx_lang:'
 
 
 class CrawlerGUI(QWidget):
@@ -39,9 +42,122 @@ class CrawlerGUI(QWidget):
         self.__port__ = 8888
         self.__connection__ = None
 
+        self.manual_control = False
+        self.joystick = None
+        self.x_axis = None
+        self.y_axis = None
+
         super().__init__()
 
         self.init_gui()
+        self.init_joystick()
+
+    def init_joystick(self):
+        """
+
+        :return:
+        """
+        pygame.init()
+        pygame.joystick.init()
+
+        joystick_count = pygame.joystick.get_count()
+        if joystick_count > 0:
+            self.manual_control = True
+            self.joystick = pygame.joystick.Joystick(0)
+            self.joystick.init()
+            LOGGER.info("JOYSTICK FOUND: {}".format(self.joystick.get_name()))
+            sleep(0.5)
+            axes = self.joystick.get_numaxes()
+            LOGGER.info(axes)
+
+            axis_thread = threading.Thread(target=self.__get_axis__)
+            axis_thread.start()
+        else:
+            LOGGER.info("No joystick device connected!")
+
+    def closeEvent(self, event):
+
+        reply = QMessageBox.question(self, 'Message', "Are you sure to quit?", QMessageBox.Yes | QMessageBox.No,
+                                     QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            self.manual_control = False
+            event.accept()
+        else:
+            event.ignore()
+
+    def __get_axis__(self):
+        """__get_axis__
+
+        :return:
+        """
+        while self.manual_control:
+            pygame.event.pump()
+            x = - int(self.joystick.get_axis(0) * 100)
+            y = - int(self.joystick.get_axis(3) * 100)
+
+            l_pwm = 0
+            r_pwm = 0
+
+            if x >= 0 and y >= 0:
+                l_pwm = y
+                r_pwm = y - x
+            elif x < 0 and y >= 0:
+                l_pwm = y + x
+                r_pwm = y
+            elif x >=0 and y < 0:
+                l_pwm = y
+                r_pwm = y + x
+            elif x < 0 and y < 0:
+                l_pwm = y - x
+                r_pwm = y
+
+            if l_pwm > 0:
+                l_dir = 1
+            elif l_pwm < 0:
+                l_dir = 2
+            else:
+                l_dir = 0
+
+            if r_pwm > 0:
+                r_dir = 1
+            elif r_pwm < 0:
+                r_dir = 2
+            else:
+                r_dir = 0
+
+            self.info_pwm_fl.setText(str(l_pwm))
+            self.info_pwm_rl.setText(str(l_pwm))
+            self.info_pwm_fr.setText(str(r_pwm))
+            self.info_pwm_rr.setText(str(r_pwm))
+
+            spi_cmd_id = chr(2)
+            spi_data_0 = chr(l_dir)
+            spi_data_1 = chr(r_dir)
+            spi_data_2 = chr(l_dir)
+            spi_data_3 = chr(r_dir)
+            udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+            if self.__connection__:
+                response = self.__connection__.send_package_and_get_response(udp_frame)
+
+            sleep(0.12)
+        
+            if l_pwm < 0:
+                l_pwm = - l_pwm
+            if r_pwm < 0:
+                r_pwm = - r_pwm
+        
+            spi_cmd_id = chr(1)
+            spi_data_0 = chr(l_pwm)
+            spi_data_1 = chr(r_pwm)
+            spi_data_2 = chr(l_pwm)
+            spi_data_3 = chr(r_pwm)
+            udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+            if self.__connection__:
+                response = self.__connection__.send_package_and_get_response(udp_frame)
+
+            # LOGGER.info("{} - {}".format(self.x_axis, self.y_axis))
+            sleep(0.15)
 
     def init_gui(self):
         """
@@ -86,6 +202,123 @@ class CrawlerGUI(QWidget):
         self.__create_speech_line_edit__()
         self.__create_select_language_combobox__()
         self.__create_speak_button__()
+        self.__lw_knob__()
+        self.__lw_motors_info__()
+
+    def __lw_motors_info__(self):
+        """__lw_motors_info__
+
+            Load widgets used to display info about motors.
+        :return:
+        """
+        x = 500
+        y = 400
+        x_spacing = 50
+        x_motor_offset = 14
+        x_pwm_offset = 55
+        x_dir_offset = 100
+        y_spacing = 20
+
+        header_motor = QLabel(self)
+        header_motor.setText("MOTOR")
+        header_motor.move(x, y)
+        header_motor.resize(header_motor.sizeHint())
+        header_motor.show()
+
+        header_motor_fl = QLabel(self)
+        header_motor_fl.setText("FL")
+        header_motor_fl.move(x + x_motor_offset, y + y_spacing)
+        header_motor_fl.resize(header_motor_fl.sizeHint())
+        header_motor_fl.show()
+
+        header_motor_fr = QLabel(self)
+        header_motor_fr.setText("FR")
+        header_motor_fr.move(x + x_motor_offset, y + 2 * y_spacing)
+        header_motor_fr.resize(header_motor_fr.sizeHint())
+        header_motor_fr.show()
+
+        header_motor_rl = QLabel(self)
+        header_motor_rl.setText("RL")
+        header_motor_rl.move(x + x_motor_offset, y + 3 * y_spacing)
+        header_motor_rl.resize(header_motor_rl.sizeHint())
+        header_motor_rl.show()
+
+        header_motor_rr = QLabel(self)
+        header_motor_rr.setText("RR")
+        header_motor_rr.move(x + x_motor_offset, y + 4 * y_spacing)
+        header_motor_rr.resize(header_motor_rr.sizeHint())
+        header_motor_rr.show()
+
+        header_pwm = QLabel(self)
+        header_pwm.setText("PWM")
+        header_pwm.move(x + x_spacing, y)
+        header_pwm.resize(header_pwm.sizeHint())
+        header_pwm.show()
+
+        self.info_pwm_fl = QLabel(self)
+        self.info_pwm_fl.setText("000")
+        self.info_pwm_fl.move(x + x_pwm_offset, y + y_spacing)
+        self.info_pwm_fl.resize(self.info_pwm_fl.sizeHint())
+        self.info_pwm_fl.show()
+
+        self.info_pwm_fr = QLabel(self)
+        self.info_pwm_fr.setText("000")
+        self.info_pwm_fr.move(x + x_pwm_offset, y + 2 * y_spacing)
+        self.info_pwm_fr.resize(self.info_pwm_fr.sizeHint())
+        self.info_pwm_fr.show()
+
+        self.info_pwm_rl = QLabel(self)
+        self.info_pwm_rl.setText("000")
+        self.info_pwm_rl.move(x + x_pwm_offset, y + 3 * y_spacing)
+        self.info_pwm_rl.resize(self.info_pwm_rl.sizeHint())
+        self.info_pwm_rl.show()
+
+        self.info_pwm_rr = QLabel(self)
+        self.info_pwm_rr.setText("000")
+        self.info_pwm_rr.move(x + x_pwm_offset, y + 4 * y_spacing)
+        self.info_pwm_rr.resize(self.info_pwm_rr.sizeHint())
+        self.info_pwm_rr.show()
+
+        header_dir = QLabel(self)
+        header_dir.setText("DIR")
+        header_dir.move(x + 2 * x_spacing, y)
+        header_dir.resize(header_dir.sizeHint())
+        header_dir.show()
+
+        self.info_dir_fl = QLabel(self)
+        self.info_dir_fl.setText("N/A")
+        self.info_dir_fl.move(x + x_dir_offset, y + y_spacing)
+        self.info_dir_fl.resize(self.info_dir_fl.sizeHint())
+        self.info_dir_fl.show()
+
+        self.info_dir_fr = QLabel(self)
+        self.info_dir_fr.setText("N/A")
+        self.info_dir_fr.move(x + x_dir_offset, y + 2 * y_spacing)
+        self.info_dir_fr.resize(self.info_dir_fr.sizeHint())
+        self.info_dir_fr.show()
+
+        self.info_dir_rl = QLabel(self)
+        self.info_dir_rl.setText("N/A")
+        self.info_dir_rl.move(x + x_dir_offset, y + 3 * y_spacing)
+        self.info_dir_rl.resize(self.info_dir_rl.sizeHint())
+        self.info_dir_rl.show()
+
+        self.info_dir_rr = QLabel(self)
+        self.info_dir_rr.setText("N/A")
+        self.info_dir_rr.move(x + x_dir_offset, y + 4 * y_spacing)
+        self.info_dir_rr.resize(self.info_dir_rr.sizeHint())
+        self.info_dir_rr.show()
+
+    def __lw_knob__(self):
+        """
+
+        :return:
+        """
+        size = 16
+        self.knob = DragButton(self)
+        self.knob.move(500, 500)
+        self.knob.resize(size, size)
+        self.knob.show()
 
     def __create_speech_line_edit__(self):
         """__create_speech_line_edit__

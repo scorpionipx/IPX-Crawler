@@ -65,12 +65,12 @@ class Crawler:
 
         while self.connection.listening:
             incoming_package = self.connection.__get_package_from_client__()
-            LOGGER.info(incoming_package)
+            # LOGGER.info(incoming_package)
             decoded_package = incoming_package.decode('utf-8')
 
             if 'spi' in decoded_package:
                 self.driver.send_SPI_data([1, 50, 50, 50, 50])
-            self.connection.send_package(decoded_package)
+            # self.connection.send_package(decoded_package)
 
             if 'stop_listening' in decoded_package:
                 self.connection.stop_listening()
@@ -118,9 +118,9 @@ class Crawler:
                 for char in data:
                     spi_data.append(ord(char))
 
-                LOGGER.info("SPI DATA RECEIVED: {}, type {}".format(spi_data, type(spi_data)))
+                # LOGGER.info("SPI DATA RECEIVED: {}, type {}".format(spi_data, type(spi_data)))
                 for spi_d in spi_data:
-                    LOGGER.info("DATA: {}".format(spi_d))
+                    # LOGGER.info("DATA: {}".format(spi_d))
 
                 self.driver.send_SPI_data(spi_data)
             elif cmd_id == 51:

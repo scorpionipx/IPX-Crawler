@@ -1,3 +1,4 @@
 crawler/.idea/
 crawler/crawler/logs/
 *.pyc
+crawler/venv/
