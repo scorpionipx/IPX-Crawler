@@ -1,4 +1,10 @@
+import logging
 import spidev
+
+from crawler.version import __version__
+
+LOGGER = logging.getLogger('crawler')
+LOGGER.setLevel(logging.INFO)
 
 
 class CrawlerDriverBoardSTM:
@@ -28,4 +34,5 @@ class CrawlerDriverBoardSTM:
         :type data: list
         :return: None
         """
+        LOGGER.info("Sending SPI {}".format(len(data)))
         self.SPI.xfer(data)

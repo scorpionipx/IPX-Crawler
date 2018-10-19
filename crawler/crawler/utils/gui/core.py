@@ -147,7 +147,7 @@ class CrawlerGUI(QWidget):
             udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4 + spi_data_4
             if self.__connection__:
                 pass
-                response = self.__connection__.send_package_and_get_response(udp_frame)
+                # response = self.__connection__.send_package_and_get_response(udp_frame)
 
             sleep(0.05)
         
@@ -161,10 +161,11 @@ class CrawlerGUI(QWidget):
             spi_data_1 = chr(r_pwm)
             spi_data_2 = chr(l_pwm)
             spi_data_3 = chr(r_pwm)
+            spi_data_4 = chr(0)
             udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
             if self.__connection__:
                 pass
-                response = self.__connection__.send_package_and_get_response(udp_frame)
+                # response = self.__connection__.send_package_and_get_response(udp_frame)
 
             # LOGGER.info("{} - {}".format(self.x_axis, self.y_axis))
             sleep(0.05)
@@ -481,8 +482,9 @@ class CrawlerGUI(QWidget):
             Load line edit entry used to send spi data to Crawler.
         :return:
         """
-        self.spi_data_holder = [None] * 5
-        for _ in range(6):
+        number_of_spi_data_holders = 6
+        self.spi_data_holder = [None] * number_of_spi_data_holders
+        for _ in range(number_of_spi_data_holders):
             self.spi_data_holder[_] = QLineEdit(self)
             self.spi_data_holder[_].move(20 + _ * 60, 145)
             self.spi_data_holder[_].resize(50, 20)
