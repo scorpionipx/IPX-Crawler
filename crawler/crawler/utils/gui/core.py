@@ -93,16 +93,16 @@ class CrawlerGUI(QWidget):
         """
         while self.manual_control:
             pygame.event.pump()
-            x = - int(self.joystick.get_axis(0) * 100)
+            x = int(self.joystick.get_axis(0) * 100)
             y = - int(self.joystick.get_axis(3) * 100)
 
             l_pwm = 0
             r_pwm = 0
 
-            if x >= 0 and y >= 0:
+            if x >= 0 and y > 0:
                 l_pwm = y
                 r_pwm = y - x
-            elif x < 0 and y >= 0:
+            elif x < 0 and y > 0:
                 l_pwm = y + x
                 r_pwm = y
             elif x >=0 and y < 0:
@@ -111,6 +111,13 @@ class CrawlerGUI(QWidget):
             elif x < 0 and y < 0:
                 l_pwm = y - x
                 r_pwm = y
+            elif x >= 0 and y == 0:
+                l_pwm = x
+                r_pwm = -x
+
+            elif x <= 0 and y == 0:
+                l_pwm = -x
+                r_pwm = x
 
             if l_pwm > 0:
                 l_dir = 1
@@ -136,7 +143,8 @@ class CrawlerGUI(QWidget):
             spi_data_1 = chr(r_dir)
             spi_data_2 = chr(l_dir)
             spi_data_3 = chr(r_dir)
-            udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+            spi_data_4 = chr(0)
+            udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4 + spi_data_4
             if self.__connection__:
                 pass
                 response = self.__connection__.send_package_and_get_response(udp_frame)
@@ -153,7 +161,7 @@ class CrawlerGUI(QWidget):
             spi_data_1 = chr(r_pwm)
             spi_data_2 = chr(l_pwm)
             spi_data_3 = chr(r_pwm)
-            udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+            udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
             if self.__connection__:
                 pass
                 response = self.__connection__.send_package_and_get_response(udp_frame)
@@ -436,7 +444,9 @@ class CrawlerGUI(QWidget):
         spi_data_1 = chr(int(self.motor_direction_holder[1].text()))
         spi_data_2 = chr(int(self.motor_direction_holder[2].text()))
         spi_data_3 = chr(int(self.motor_direction_holder[3].text()))
-        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        spi_data_4 = chr(0)
+
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
 
@@ -450,7 +460,9 @@ class CrawlerGUI(QWidget):
         spi_data_1 = chr(int(self.motor_power_holder[1].text()))
         spi_data_2 = chr(int(self.motor_power_holder[2].text()))
         spi_data_3 = chr(int(self.motor_power_holder[3].text()))
-        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        spi_data_4 = chr(0)
+
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
 
@@ -470,7 +482,7 @@ class CrawlerGUI(QWidget):
         :return:
         """
         self.spi_data_holder = [None] * 5
-        for _ in range(5):
+        for _ in range(6):
             self.spi_data_holder[_] = QLineEdit(self)
             self.spi_data_holder[_].move(20 + _ * 60, 145)
             self.spi_data_holder[_].resize(50, 20)
@@ -667,7 +679,9 @@ class CrawlerGUI(QWidget):
         spi_data_1 = chr(1)
         spi_data_2 = chr(1)
         spi_data_3 = chr(1)
-        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        spi_data_4 = chr(0)
+
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
 
@@ -681,7 +695,9 @@ class CrawlerGUI(QWidget):
         spi_data_1 = chr(2)
         spi_data_2 = chr(2)
         spi_data_3 = chr(2)
-        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        spi_data_4 = chr(0)
+
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
 
@@ -695,7 +711,9 @@ class CrawlerGUI(QWidget):
         spi_data_1 = chr(0)
         spi_data_2 = chr(0)
         spi_data_3 = chr(0)
-        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        spi_data_4 = chr(0)
+
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
 
@@ -706,7 +724,9 @@ class CrawlerGUI(QWidget):
         spi_data_1 = chr(0)
         spi_data_2 = chr(0)
         spi_data_3 = chr(0)
-        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        spi_data_4 = chr(0)
+
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
         
@@ -721,7 +741,9 @@ class CrawlerGUI(QWidget):
         spi_data_1 = chr(1)
         spi_data_2 = chr(0)
         spi_data_3 = chr(0)
-        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        spi_data_4 = chr(0)
+
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
         
@@ -736,7 +758,9 @@ class CrawlerGUI(QWidget):
         spi_data_1 = chr(0)
         spi_data_2 = chr(0)
         spi_data_3 = chr(0)
-        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        spi_data_4 = chr(0)
+
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
         
@@ -750,8 +774,9 @@ class CrawlerGUI(QWidget):
         spi_data_1 = chr(int(self.spi_data_holder[2].text()))
         spi_data_2 = chr(int(self.spi_data_holder[3].text()))
         spi_data_3 = chr(int(self.spi_data_holder[4].text()))
+        spi_data_4 = chr(0)
 
-        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
         
@@ -766,8 +791,9 @@ class CrawlerGUI(QWidget):
         spi_data_1 = chr(int(self.spi_data_holder[2].text()))
         spi_data_2 = chr(int(self.spi_data_holder[3].text()))
         spi_data_3 = chr(int(self.spi_data_holder[4].text()))
+        spi_data_4 = chr(0)
 
-        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
 
@@ -779,6 +805,7 @@ class CrawlerGUI(QWidget):
         spi_data_1 = chr(1)
         spi_data_2 = chr(1)
         spi_data_3 = chr(1)
+        spi_data_4 = chr(0)
 
         key_pressed = e.key()
         if key_pressed == Qt.Key_W:
@@ -830,7 +857,7 @@ class CrawlerGUI(QWidget):
             spi_data_2 = chr(0)
             spi_data_3 = chr(0)
 
-        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3
+        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
 

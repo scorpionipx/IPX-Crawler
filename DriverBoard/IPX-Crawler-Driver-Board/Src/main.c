@@ -54,6 +54,7 @@ struct ipx_spi_command {
   unsigned short data_1;
   unsigned short data_2;
   unsigned short data_3;
+  unsigned short data_4;
 } ipx_command;
 /* USER CODE END PV */
 
@@ -105,8 +106,7 @@ int main(void)
   TFT_on_off(0x29);
   TFT_fill(Black);
 
-  HEADLIGHT_LEFT_ON;
-  HEADLIGHT_RIGHT_ON;
+  light_control_check();
 
   print_str(60, 0, 1, Green, Black, "ScorpionIPX Crawler Driver Board v0.0.1");
 
@@ -233,13 +233,20 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 		execute_command(ipx_command);
 		break;
 	}
+	case 5:
+	{
+		ipx_command.data_4 = spi_buffer;
+		display_command();
+		execute_command(ipx_command);
+		break;
+	}
 	default:
 		pos = 0;
 		break;
 	}
 
 	pos ++;
-	if(pos > 4)
+	if(pos > 5)
 	{
 		pos = 0;
 	}
@@ -275,6 +282,7 @@ void display_command_header(void)
 	print_str(x, y + spacing * 3, 1, Green, Black, "DATA_1: N/A");
 	print_str(x, y + spacing * 4, 1, Green, Black, "DATA_2: N/A");
 	print_str(x, y + spacing * 5, 1, Green, Black, "DATA_3: N/A");
+	print_str(x, y + spacing * 6, 1, Green, Black, "DATA_4: N/A");
 }
 void display_command(void)
 {
@@ -287,6 +295,7 @@ void display_command(void)
 	print_str(x + 6 * 8, y + spacing * 3, 1, Green, Black, Itoa(ipx_command.data_1, 10, 3));
 	print_str(x + 6 * 8, y + spacing * 4, 1, Green, Black, Itoa(ipx_command.data_2, 10, 3));
 	print_str(x + 6 * 8, y + spacing * 5, 1, Green, Black, Itoa(ipx_command.data_3, 10, 3));
+	print_str(x + 6 * 8, y + spacing * 6, 1, Green, Black, Itoa(ipx_command.data_4, 10, 3));
 }
 
 void execute_command(struct ipx_spi_command command)

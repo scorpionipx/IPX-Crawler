@@ -326,6 +326,15 @@ void set_track_direction(unsigned short track, unsigned short direction)
 	}
 }
 
+void joystick_drive(signed short x, signed short y)
+{
+	if(x >=0 && y >= 100)
+	{
+
+	}
+
+}
+
 void drive(uint8_t power, uint8_t steering)
 {
 
