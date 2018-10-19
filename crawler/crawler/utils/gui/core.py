@@ -27,6 +27,10 @@ APP_SIZE_HEIGHT = 600
 CURRENT_DIR = os.path.dirname(__file__)
 LANGUAGE_LITERAL = 'ipx_lang:'
 
+JOYSTICK_X_AXIS = 0
+JOYSTICK_Y_AXIS = 0
+JOYSTICK_HEADLIGHTS_BUTTON = 6
+
 
 class CrawlerGUI(QWidget):
     """CrawlerGUI
@@ -46,6 +50,8 @@ class CrawlerGUI(QWidget):
         self.joystick = None
         self.x_axis = None
         self.y_axis = None
+
+        self.lights_on = False
 
         super().__init__()
 
@@ -91,10 +97,30 @@ class CrawlerGUI(QWidget):
 
         :return:
         """
+        number_of_buttons = self.joystick.get_numbuttons()
+        LOGGER.info("{} buttons".format(number_of_buttons))
+        button_pressed = [False] * number_of_buttons
+        spi_delay = 0.1
+
         while self.manual_control:
+
             pygame.event.pump()
             x = int(self.joystick.get_axis(0) * 100)
             y = - int(self.joystick.get_axis(3) * 100)
+
+            for button_index in range(number_of_buttons):
+                if self.joystick.get_button(button_index):
+                    button_pressed[button_index] = True
+                    LOGGER.info("Button {} pressed".format(button_index))
+
+            if button_pressed[JOYSTICK_HEADLIGHTS_BUTTON]:
+                button_pressed[JOYSTICK_HEADLIGHTS_BUTTON] = False
+                if self.__connection__:
+                    if self.lights_on:
+                        self.turn_lights_off()
+                    else:
+                        self.turn_lights_on()
+                    sleep(spi_delay)
 
             l_pwm = 0
             r_pwm = 0
@@ -149,7 +175,7 @@ class CrawlerGUI(QWidget):
                 pass
                 response = self.__connection__.send_package_and_get_response(udp_frame)
 
-            sleep(0.55)
+            sleep(spi_delay)
         
             if l_pwm < 0:
                 l_pwm = - l_pwm
@@ -168,7 +194,7 @@ class CrawlerGUI(QWidget):
                 response = self.__connection__.send_package_and_get_response(udp_frame)
 
             # LOGGER.info("{} - {}".format(self.x_axis, self.y_axis))
-            sleep(0.55)
+            sleep(spi_delay)
 
     def init_gui(self):
         """
@@ -748,6 +774,7 @@ class CrawlerGUI(QWidget):
         udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
+        self.lights_on = True
         
     def turn_lights_off(self):
         """turn_lights_off
@@ -765,6 +792,7 @@ class CrawlerGUI(QWidget):
         udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
+        self.lights_on = False
         
     def set_power_(self):
         """

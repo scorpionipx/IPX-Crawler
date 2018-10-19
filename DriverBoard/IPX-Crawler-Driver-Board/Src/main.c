@@ -343,6 +343,10 @@ void execute_command(struct ipx_spi_command command)
 
 			break;
 		}
+		case 4:
+		{
+
+		}
 
 		default:
 		{
