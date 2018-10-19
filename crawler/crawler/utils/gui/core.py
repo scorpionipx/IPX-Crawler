@@ -144,12 +144,12 @@ class CrawlerGUI(QWidget):
             spi_data_2 = chr(l_dir)
             spi_data_3 = chr(r_dir)
             spi_data_4 = chr(0)
-            udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4 + spi_data_4
+            udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
             if self.__connection__:
                 pass
-                # response = self.__connection__.send_package_and_get_response(udp_frame)
+                response = self.__connection__.send_package_and_get_response(udp_frame)
 
-            sleep(0.05)
+            sleep(0.55)
         
             if l_pwm < 0:
                 l_pwm = - l_pwm
@@ -165,10 +165,10 @@ class CrawlerGUI(QWidget):
             udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
             if self.__connection__:
                 pass
-                # response = self.__connection__.send_package_and_get_response(udp_frame)
+                response = self.__connection__.send_package_and_get_response(udp_frame)
 
             # LOGGER.info("{} - {}".format(self.x_axis, self.y_axis))
-            sleep(0.05)
+            sleep(0.55)
 
     def init_gui(self):
         """
