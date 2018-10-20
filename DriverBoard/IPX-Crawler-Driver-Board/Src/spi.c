@@ -95,7 +95,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
   if(spiHandle->Instance==SPI4)
   {
   /* USER CODE BEGIN SPI4_MspInit 0 */
-
+	  SPI_NOB = 100;
+	  SPI_DATA_INDEX = 0;
+	  SPI_COMMAND_ID = 0;
   /* USER CODE END SPI4_MspInit 0 */
     /* Peripheral clock enable */
     __HAL_RCC_SPI4_CLK_ENABLE();

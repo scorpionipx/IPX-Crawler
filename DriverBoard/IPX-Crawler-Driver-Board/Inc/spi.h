@@ -50,7 +50,22 @@ extern SPI_HandleTypeDef hspi4;
 extern SPI_HandleTypeDef hspi5;
 
 /* USER CODE BEGIN Private defines */
+#define SPI_DATA_BUFFER_SIZE 1024
 
+#define SPI_COMMAND_ID_MASK 0XF8
+#define SPI_COMMAND_ID_RS 3
+
+#define SPI_EXTEND_MASK 0X04
+#define SPI_EXTEND_RS 2
+
+#define SPI_NOB_MASK 0X03
+
+uint16_t SPI_DATA_INDEX;  // number of bytes to be received in current frame
+uint8_t SPI_DATA_BUFFER[SPI_DATA_BUFFER_SIZE]; // temporarily storage for SPI data
+
+uint8_t SPI_COMMAND_ID;  // SPI command's ID
+uint8_t SPI_EXTEND;  // SPI extend functionality
+uint16_t SPI_NOB;  // number of bytes to be received in current frame
 /* USER CODE END Private defines */
 
 extern void Error_Handler(void);

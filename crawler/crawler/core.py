@@ -122,7 +122,7 @@ class Crawler:
                 # for spi_d in spi_data:
                     # LOGGER.info("DATA: {}".format(spi_d))
 
-                self.driver.send_SPI_data(spi_data)
+                self.driver.send_spi_data(spi_data)
             elif cmd_id == 51:
                 LOGGER.info("SPEECH DATA: {}".format(data))
                 self.speak(data)
@@ -133,5 +133,8 @@ class Crawler:
 
         LOGGER.info("CMD_ID: {}".format(cmd_id))
         LOGGER.info("DATA: {}".format(data))
+
+
+
 
 

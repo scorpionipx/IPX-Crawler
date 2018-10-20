@@ -29,4 +29,10 @@ void light_control_check(void)
 	  HAL_Delay(500);
 	  HEADLIGHT_LEFT_OFF;
 	  HEADLIGHT_RIGHT_OFF;
+	  HAL_Delay(500);
+	  HEADLIGHT_LEFT_ON;
+	  HEADLIGHT_RIGHT_ON;
+	  HAL_Delay(500);
+	  HEADLIGHT_LEFT_OFF;
+	  HEADLIGHT_RIGHT_OFF;
 }

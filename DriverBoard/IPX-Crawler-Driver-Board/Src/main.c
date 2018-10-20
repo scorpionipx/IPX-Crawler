@@ -71,7 +71,7 @@ void Error_Handler(void);
 void spi_data_handler(uint8_t spi_buffer);
 void display_command_header(void);
 void display_command(void);
-void execute_command(struct ipx_spi_command command);
+void execute_spi_command();
 
 unsigned short pos = 0;
 /* USER CODE END 0 */
@@ -104,6 +104,7 @@ int main(void)
 
   TFT_init();
   TFT_on_off(0x29);
+  TFT_set_rotation(LANDSCAPE_1);
   TFT_fill(Black);
 
   light_control_check();
@@ -111,6 +112,7 @@ int main(void)
   print_str(60, 0, 1, Green, Black, "ScorpionIPX Crawler Driver Board v0.0.1");
 
   display_command_header();
+  display_command();
 
   init_tracks_control();
   display_tracks_info_header();
@@ -204,51 +206,37 @@ void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
 	HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_14);
 	HAL_GPIO_TogglePin(GPIOG, GPIO_PIN_13);
 	HAL_SPI_Receive_IT(&hspi4, &spi_buffer, 1);
-	switch(pos)
+
+	SPI_DATA_BUFFER[SPI_DATA_INDEX] = spi_buffer;
+
+	if(SPI_DATA_INDEX == 0)
 	{
-	case 0:
-	{
-		ipx_command.id = spi_buffer;
-		break;
-	}
-	case 1:
-	{
-		ipx_command.data_0 = spi_buffer;
-		break;
-	}
-	case 2:
-	{
-		ipx_command.data_1 = spi_buffer;
-		break;
-	}
-	case 3:
-	{
-		ipx_command.data_2 = spi_buffer;
-		break;
-	}
-	case 4:
-	{
-		ipx_command.data_3 = spi_buffer;
-		display_command();
-		execute_command(ipx_command);
-		break;
-	}
-	case 5:
-	{
-		ipx_command.data_4 = spi_buffer;
-		display_command();
-		execute_command(ipx_command);
-		break;
-	}
-	default:
-		pos = 0;
-		break;
+		SPI_COMMAND_ID = (SPI_DATA_BUFFER[0] & SPI_COMMAND_ID_MASK) >> SPI_COMMAND_ID_RS;
+		SPI_EXTEND = (SPI_DATA_BUFFER[0] & SPI_EXTEND_MASK) >> SPI_EXTEND_RS;
+		if(SPI_EXTEND)
+		{
+			SPI_NOB = 2;
+		}
+		else
+		{
+			SPI_NOB = 1 << (SPI_DATA_BUFFER[0] & SPI_NOB_MASK);
+		}
 	}
 
-	pos ++;
-	if(pos > 5)
+	if(SPI_DATA_INDEX == 1)
 	{
-		pos = 0;
+		if(SPI_EXTEND)
+		{
+			SPI_NOB = (((SPI_DATA_BUFFER[0] & SPI_NOB_MASK) << 8) | SPI_DATA_BUFFER[1]) + 1;
+		}
+	}
+//	display_command();
+
+	SPI_DATA_INDEX ++;
+	if(SPI_DATA_INDEX >= SPI_NOB)
+	{
+		SPI_DATA_INDEX = 0;  // reset SPI data buffer index
+		execute_spi_command();
 	}
 }
 
@@ -272,59 +260,59 @@ void spi_data_handler(uint8_t spi_buffer)
 
 void display_command_header(void)
 {
-	int x = 10;
-	int y = 32;
+	int x = 200;
+	int y = 150;
 	int spacing = 8;
 
 	print_str(x, y, 1, Green, Black, "IPX COMMAND");
-	print_str(x, y + spacing, 1, Green, Black, "ID: N/A");
-	print_str(x, y + spacing * 2, 1, Green, Black, "DATA_0: N/A");
-	print_str(x, y + spacing * 3, 1, Green, Black, "DATA_1: N/A");
-	print_str(x, y + spacing * 4, 1, Green, Black, "DATA_2: N/A");
+	print_str(x, y + spacing, 1, Green, Black,     "CMD_ID: N/A");
+	print_str(x, y + spacing * 2, 1, Green, Black, "EXTEND: N/A");
+	print_str(x, y + spacing * 3, 1, Green, Black, "SPINOB: N/A");
+	print_str(x, y + spacing * 4, 1, Green, Black, "SINDEX: N/A");
 	print_str(x, y + spacing * 5, 1, Green, Black, "DATA_3: N/A");
 	print_str(x, y + spacing * 6, 1, Green, Black, "DATA_4: N/A");
 }
 void display_command(void)
 {
-	int x = 10;
-	int y = 32;
+	int x = 200;
+	int y = 150;
 	int spacing = 8;
 
-	print_str(x + 6 * 4, y + spacing, 1, Green, Black, Itoa(ipx_command.id, 10, 3));
-	print_str(x + 6 * 8, y + spacing * 2, 1, Green, Black, Itoa(ipx_command.data_0, 10, 3));
-	print_str(x + 6 * 8, y + spacing * 3, 1, Green, Black, Itoa(ipx_command.data_1, 10, 3));
-	print_str(x + 6 * 8, y + spacing * 4, 1, Green, Black, Itoa(ipx_command.data_2, 10, 3));
-	print_str(x + 6 * 8, y + spacing * 5, 1, Green, Black, Itoa(ipx_command.data_3, 10, 3));
-	print_str(x + 6 * 8, y + spacing * 6, 1, Green, Black, Itoa(ipx_command.data_4, 10, 3));
+	print_str(x + 6 * 8, y + spacing, 1, Green, Black, Itoa(SPI_COMMAND_ID, 10, 3));
+	print_str(x + 6 * 8, y + spacing * 2, 1, Green, Black, Itoa(SPI_EXTEND, 10, 3));
+	print_str(x + 6 * 8, y + spacing * 3, 1, Green, Black, Itoa(SPI_NOB, 10, 3));
+	print_str(x + 6 * 8, y + spacing * 4, 1, Green, Black, Itoa(SPI_DATA_INDEX, 10, 3));
+	print_str(x + 6 * 8, y + spacing * 5, 1, Green, Black, Itoa(SPI_DATA_BUFFER[0], 10, 3));
+	print_str(x + 6 * 8, y + spacing * 6, 1, Green, Black, Itoa(SPI_DATA_BUFFER[1], 10, 3));
 }
 
-void execute_command(struct ipx_spi_command command)
+void execute_spi_command()
 {
-	switch(command.id)
+	switch(SPI_COMMAND_ID)
 	{
 		case 1:
 		{
-			set_fl_track_dc(command.data_0);
-			set_fr_track_dc(command.data_1);
-			set_rl_track_dc(command.data_2);
-			set_rr_track_dc(command.data_3);
+			set_fl_track_dc(SPI_DATA_BUFFER[1]);
+			set_fr_track_dc(SPI_DATA_BUFFER[2]);
+			set_rl_track_dc(SPI_DATA_BUFFER[3]);
+			set_rr_track_dc(SPI_DATA_BUFFER[4]);
 			display_tracks_info();
 			break;
 		}
 
 		case 2:
 		{
-			set_fl_track_direction(command.data_0);
-			set_fr_track_direction(command.data_1);
-			set_rl_track_direction(command.data_2);
-			set_rr_track_direction(command.data_3);
+			set_fl_track_direction(SPI_DATA_BUFFER[1]);
+			set_fr_track_direction(SPI_DATA_BUFFER[2]);
+			set_rl_track_direction(SPI_DATA_BUFFER[3]);
+			set_rr_track_direction(SPI_DATA_BUFFER[4]);
 			display_tracks_info();
 			break;
 		}
 
 		case 3:
 		{
-			if(command.data_0)
+			if(SPI_DATA_BUFFER[1])
 			{
 				HEADLIGHT_LEFT_ON;
 			}
@@ -332,7 +320,7 @@ void execute_command(struct ipx_spi_command command)
 			{
 				HEADLIGHT_LEFT_OFF;
 			}
-			if(command.data_1)
+			if(SPI_DATA_BUFFER[3])
 			{
 				HEADLIGHT_RIGHT_ON;
 			}
@@ -345,7 +333,27 @@ void execute_command(struct ipx_spi_command command)
 		}
 		case 4:
 		{
+			unsigned int x = 10;
+			unsigned int y = 100;
+			unsigned short max_chars_per_row = 50;
 
+			for(unsigned int i = 0; i < SPI_NOB - 2; i++)
+			{
+				if(i % max_chars_per_row == 0)
+				{
+					x = 10;
+					y += 8;
+				}
+				unsigned char c = (unsigned char)(SPI_DATA_BUFFER[i+2]);
+				print_char(x, y, 1, Green, Black, c);
+				x += 6;
+			}
+			break;
+		}
+		case 10:
+		{
+			drive(SPI_DATA_BUFFER[0], SPI_DATA_BUFFER[1], SPI_DATA_BUFFER[2]);
+			break;
 		}
 
 		default:

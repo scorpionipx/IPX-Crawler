@@ -91,6 +91,7 @@ void rl_track_backward(uint8_t speed);
 void rr_track_forkward(uint8_t speed);
 void rr_track_backward(uint8_t speed);
 
+void drive(uint8_t left_power, uint8_t right_power, uint8_t directions);
 void stop_tracks(void);
 
 void display_tracks_info_header(void);

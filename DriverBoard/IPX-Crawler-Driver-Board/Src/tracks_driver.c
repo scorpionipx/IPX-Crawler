@@ -335,9 +335,21 @@ void joystick_drive(signed short x, signed short y)
 
 }
 
-void drive(uint8_t power, uint8_t steering)
+void drive(uint8_t left_power, uint8_t right_power, uint8_t directions)
 {
+	set_fl_track_dc(left_power);
+	set_rl_track_dc(left_power);
 
+	set_fr_track_dc(right_power);
+	set_rr_track_dc(right_power);
+
+	uint8_t left_direction = (directions >> 2) & 3;
+	uint8_t right_direction = directions & 3;
+
+	set_fl_track_direction(left_direction);
+	set_fr_track_direction(right_direction);
+	set_rl_track_direction(left_direction);
+	set_rr_track_direction(right_direction);
 }
 
 void init_tracks_control(void)
