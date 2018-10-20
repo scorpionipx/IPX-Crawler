@@ -11,28 +11,28 @@ void light_control_check(void)
 {
 	  HEADLIGHT_LEFT_ON;
 	  HEADLIGHT_RIGHT_ON;
-	  HAL_Delay(500);
+	  HAL_Delay(200);
 	  HEADLIGHT_LEFT_OFF;
 	  HEADLIGHT_RIGHT_OFF;
-	  HAL_Delay(500);
+	  HAL_Delay(200);
 	  for(int short i = 0; i < 15; i++)
 	  {
 		  HEADLIGHT_LEFT_ON;
 		  HEADLIGHT_RIGHT_OFF;
-		  HAL_Delay(50);
+		  HAL_Delay(30);
 		  HEADLIGHT_LEFT_OFF;
 		  HEADLIGHT_RIGHT_ON;
-		  HAL_Delay(50);
+		  HAL_Delay(30);
 	  }
 	  HEADLIGHT_LEFT_ON;
 	  HEADLIGHT_RIGHT_ON;
-	  HAL_Delay(500);
+	  HAL_Delay(200);
 	  HEADLIGHT_LEFT_OFF;
 	  HEADLIGHT_RIGHT_OFF;
-	  HAL_Delay(500);
+	  HAL_Delay(200);
 	  HEADLIGHT_LEFT_ON;
 	  HEADLIGHT_RIGHT_ON;
-	  HAL_Delay(500);
+	  HAL_Delay(200);
 	  HEADLIGHT_LEFT_OFF;
 	  HEADLIGHT_RIGHT_OFF;
 }

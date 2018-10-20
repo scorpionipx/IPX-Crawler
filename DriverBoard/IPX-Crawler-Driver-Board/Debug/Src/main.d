@@ -32,7 +32,7 @@ Src/main.o: ../Src/main.c \
  D:/Documents/Programming/Repositories/IPXCrawler/DriverBoard/IPX-Crawler-Driver-Board/Inc/tim.h \
  D:/Documents/Programming/Repositories/IPXCrawler/DriverBoard/IPX-Crawler-Driver-Board/Inc/gpio.h \
  ../Src/ili9341.h ../Src/font.h ../Src/tracks_driver.h \
- ../Src/headlights_driver.h
+ ../Src/headlights_driver.h ../Src/camera_driver.h
 
 D:/Documents/Programming/Repositories/IPXCrawler/DriverBoard/IPX-Crawler-Driver-Board/Inc/main.h:
 
@@ -105,3 +105,5 @@ D:/Documents/Programming/Repositories/IPXCrawler/DriverBoard/IPX-Crawler-Driver-
 ../Src/tracks_driver.h:
 
 ../Src/headlights_driver.h:
+
+../Src/camera_driver.h:

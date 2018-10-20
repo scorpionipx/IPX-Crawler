@@ -41,6 +41,7 @@
 #include "ili9341.h"
 #include "tracks_driver.h"
 #include "headlights_driver.h"
+#include "camera_driver.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -107,7 +108,6 @@ int main(void)
   TFT_set_rotation(LANDSCAPE_1);
   TFT_fill(Black);
 
-  light_control_check();
 
   print_str(60, 0, 1, Green, Black, "ScorpionIPX Crawler Driver Board v0.0.1");
 
@@ -117,6 +117,10 @@ int main(void)
   init_tracks_control();
   display_tracks_info_header();
   display_tracks_info();
+
+  light_control_check();
+  init_camera_control();
+
 
   HAL_TIM_Base_Start(&htim4);
   HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
@@ -130,7 +134,7 @@ int main(void)
   while (1)
   {
   /* USER CODE END WHILE */
-
+	  rotate_camera();
   /* USER CODE BEGIN 3 */
 
   }
@@ -312,7 +316,7 @@ void execute_spi_command()
 
 		case 3:
 		{
-			if(SPI_DATA_BUFFER[1])
+			if((SPI_DATA_BUFFER[1] >> 1) & 1)
 			{
 				HEADLIGHT_LEFT_ON;
 			}
@@ -320,7 +324,7 @@ void execute_spi_command()
 			{
 				HEADLIGHT_LEFT_OFF;
 			}
-			if(SPI_DATA_BUFFER[3])
+			if(SPI_DATA_BUFFER[1] & 1)
 			{
 				HEADLIGHT_RIGHT_ON;
 			}
@@ -328,7 +332,6 @@ void execute_spi_command()
 			{
 				HEADLIGHT_RIGHT_OFF;
 			}
-
 			break;
 		}
 		case 4:
@@ -350,9 +353,15 @@ void execute_spi_command()
 			}
 			break;
 		}
+		case 5:
+		{
+			ROTATION_REQUEST = SPI_DATA_BUFFER[1];
+			ROTATION_REQUEST_COUNTER = DEFAULT_ROTATION_REQUEST_COUNTER;
+			break;
+		}
 		case 10:
 		{
-			drive(SPI_DATA_BUFFER[0], SPI_DATA_BUFFER[1], SPI_DATA_BUFFER[2]);
+			drive(SPI_DATA_BUFFER[1], SPI_DATA_BUFFER[2], SPI_DATA_BUFFER[3]);
 			break;
 		}
 

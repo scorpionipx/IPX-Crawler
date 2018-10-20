@@ -28,8 +28,10 @@ CURRENT_DIR = os.path.dirname(__file__)
 LANGUAGE_LITERAL = 'ipx_lang:'
 
 JOYSTICK_X_AXIS = 0
-JOYSTICK_Y_AXIS = 0
+JOYSTICK_Y_AXIS = 3
 JOYSTICK_HEADLIGHTS_BUTTON = 6
+JOYSTICK_CAMERA_ROTATION_CCW_BUTTON = 8
+JOYSTICK_CAMERA_ROTATION_CW_BUTTON = 9
 
 NOB_TO_N = {0: 0, 1: 1, 2: 1, 3: 2, 4: 2, 5: 3, 6: 3, 7: 3, 8: 3}
 
@@ -78,7 +80,7 @@ class CrawlerGUI(QWidget):
             axes = self.joystick.get_numaxes()
             LOGGER.info(axes)
 
-            axis_thread = threading.Thread(target=self.__get_axis__)
+            axis_thread = threading.Thread(target=self.__manual_control__)
             axis_thread.start()
         else:
             LOGGER.info("No joystick device connected!")
@@ -119,7 +121,7 @@ class CrawlerGUI(QWidget):
             data_frame_length = number_of_data_bytes + 1
             frame_length = data_frame_length + 1
 
-        LOGGER.info("FRAME L: {}".format(frame_length))
+        # LOGGER.info("FRAME L: {}".format(frame_length))
         header_byte = (cmd_id << 3) | (extend << 2) | n
 
         spi_data = [header_byte]
@@ -132,40 +134,77 @@ class CrawlerGUI(QWidget):
             while len(spi_data) < frame_length:
                 spi_data.append(0)
 
-        for spi_byte in spi_data:
-            LOGGER.info("{0:08b}: {1} {2}".format(spi_byte, spi_byte, chr(spi_byte)))
+        # for spi_byte in spi_data:
+        #     LOGGER.info("{0:08b}: {1} {2}".format(spi_byte, spi_byte, chr(spi_byte)))
 
         return spi_data
 
-    def __get_axis__(self):
-        """__get_axis__
+    def __manual_control__(self):
+        """__manual_control__
 
         :return:
         """
         number_of_buttons = self.joystick.get_numbuttons()
         LOGGER.info("{} buttons".format(number_of_buttons))
         button_pressed = [False] * number_of_buttons
-        spi_delay = 0.1
+        button_allowed = [True] * number_of_buttons
+        button_forbidden_cycles = 3
+        button_allowed_counter = [button_forbidden_cycles] * number_of_buttons
+        spi_delay = 0.05
+        no_need_to_send_counter = 0
+        no_need_to_send = False
 
         while self.manual_control:
 
             pygame.event.pump()
-            x = int(self.joystick.get_axis(0) * 100)
-            y = - int(self.joystick.get_axis(3) * 100)
+            x = int(self.joystick.get_axis(JOYSTICK_X_AXIS) * 100)
+            y = - int(self.joystick.get_axis(JOYSTICK_Y_AXIS) * 100)
 
             for button_index in range(number_of_buttons):
                 if self.joystick.get_button(button_index):
                     button_pressed[button_index] = True
-                    LOGGER.info("Button {} pressed".format(button_index))
+                    # LOGGER.info("Button {} pressed".format(button_index))
 
-            if button_pressed[JOYSTICK_HEADLIGHTS_BUTTON]:
+            if button_pressed[JOYSTICK_HEADLIGHTS_BUTTON] and button_allowed[JOYSTICK_HEADLIGHTS_BUTTON]:
                 button_pressed[JOYSTICK_HEADLIGHTS_BUTTON] = False
                 if self.__connection__:
+                    button_allowed[JOYSTICK_HEADLIGHTS_BUTTON] = False
                     if self.lights_on:
                         self.turn_lights_off()
                     else:
                         self.turn_lights_on()
                     sleep(spi_delay)
+
+            if not button_allowed[JOYSTICK_HEADLIGHTS_BUTTON]:
+                button_allowed_counter[JOYSTICK_HEADLIGHTS_BUTTON] -= 1
+                if button_allowed_counter[JOYSTICK_HEADLIGHTS_BUTTON] == 0:
+                    button_allowed_counter[JOYSTICK_HEADLIGHTS_BUTTON] = button_forbidden_cycles
+                    button_allowed[JOYSTICK_HEADLIGHTS_BUTTON] = True
+                    
+            if button_pressed[JOYSTICK_CAMERA_ROTATION_CCW_BUTTON]:
+                button_pressed[JOYSTICK_CAMERA_ROTATION_CCW_BUTTON] = False
+                button_pressed[JOYSTICK_CAMERA_ROTATION_CW_BUTTON] = False
+                if self.__connection__:
+                    self.rotate_camera_ccw()
+                    sleep(spi_delay)
+
+            if button_pressed[JOYSTICK_CAMERA_ROTATION_CW_BUTTON]:
+                button_pressed[JOYSTICK_CAMERA_ROTATION_CCW_BUTTON] = False
+                button_pressed[JOYSTICK_CAMERA_ROTATION_CW_BUTTON] = False
+                if self.__connection__:
+                    self.rotate_camera_cw()
+                    sleep(spi_delay)
+
+            if x == 0 == y:
+                no_need_to_send_counter += 1
+                if no_need_to_send_counter > 3:
+                    no_need_to_send = True
+            else:
+                no_need_to_send_counter = 0
+                no_need_to_send = False
+
+            if no_need_to_send:
+                continue
 
             l_pwm = 0
             r_pwm = 0
@@ -187,8 +226,8 @@ class CrawlerGUI(QWidget):
                 r_pwm = -x
 
             elif x <= 0 and y == 0:
-                l_pwm = -x
-                r_pwm = x
+                l_pwm = x
+                r_pwm = -x
 
             if l_pwm > 0:
                 l_dir = 1
@@ -212,28 +251,16 @@ class CrawlerGUI(QWidget):
             directions = l_dir
             directions <<= 2
             directions |= r_dir
-
-            drive_spi_data = self.build_spi_command(cmd_id=10, data=[l_pwm, r_pwm, directions])
-            udp_frame = '$i50$d' + chr(drive_spi_data[0]) + chr(drive_spi_data[1]) + chr(drive_spi_data[3]) + \
-                        chr(drive_spi_data[4])
-            if self.__connection__:
-                pass
-                response = self.__connection__.send_package_and_get_response(udp_frame)
-
-            sleep(spi_delay)
         
             if l_pwm < 0:
                 l_pwm = - l_pwm
             if r_pwm < 0:
                 r_pwm = - r_pwm
-        
-            spi_cmd_id = chr(1)
-            spi_data_0 = chr(l_pwm)
-            spi_data_1 = chr(r_pwm)
-            spi_data_2 = chr(l_pwm)
-            spi_data_3 = chr(r_pwm)
-            spi_data_4 = chr(0)
-            udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
+
+            drive_spi_data = self.build_spi_command(cmd_id=10, data=[l_pwm, r_pwm, directions])
+            # LOGGER.info(drive_spi_data)
+            udp_frame = '$i50$d' + chr(drive_spi_data[0]) + chr(drive_spi_data[1]) + chr(drive_spi_data[2]) + \
+                        chr(drive_spi_data[3])
             if self.__connection__:
                 pass
                 response = self.__connection__.send_package_and_get_response(udp_frame)
@@ -808,15 +835,9 @@ class CrawlerGUI(QWidget):
         
         :return: 
         """
-
-        spi_cmd_id = chr(3)
-        spi_data_0 = chr(1)
-        spi_data_1 = chr(1)
-        spi_data_2 = chr(0)
-        spi_data_3 = chr(0)
-        spi_data_4 = chr(0)
-
-        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
+        spi_data = self.build_spi_command(cmd_id=3, data=[3])
+        # LOGGER.info(drive_spi_data)
+        udp_frame = '$i50$d' + chr(spi_data[0]) + chr(spi_data[1])
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
         self.lights_on = True
@@ -826,18 +847,34 @@ class CrawlerGUI(QWidget):
         
         :return: 
         """
-
-        spi_cmd_id = chr(3)
-        spi_data_0 = chr(0)
-        spi_data_1 = chr(0)
-        spi_data_2 = chr(0)
-        spi_data_3 = chr(0)
-        spi_data_4 = chr(0)
-
-        udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
+        spi_data = self.build_spi_command(cmd_id=3, data=[0])
+        # LOGGER.info(drive_spi_data)
+        udp_frame = '$i50$d' + chr(spi_data[0]) + chr(spi_data[1])
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
         self.lights_on = False
+
+    def rotate_camera_ccw(self):
+        """rotate_camera_ccw
+
+        :return:
+        """
+        spi_data = self.build_spi_command(cmd_id=5, data=[1])
+        # LOGGER.info(drive_spi_data)
+        udp_frame = '$i50$d' + chr(spi_data[0]) + chr(spi_data[1])
+        response = self.__connection__.send_package_and_get_response(udp_frame)
+        LOGGER.info(response)
+
+    def rotate_camera_cw(self):
+        """rotate_camera_cw
+
+        :return:
+        """
+        spi_data = self.build_spi_command(cmd_id=5, data=[2])
+        # LOGGER.info(drive_spi_data)
+        udp_frame = '$i50$d' + chr(spi_data[0]) + chr(spi_data[1])
+        response = self.__connection__.send_package_and_get_response(udp_frame)
+        LOGGER.info(response)
         
     def set_power_(self):
         """
