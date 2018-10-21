@@ -50,7 +50,7 @@ class Crawler:
                 self.joystick.init()
                 joystick_name = self.joystick.get_name()
                 LOGGER.info("JOYSTICK FOUND: {}".format(joystick_name))
-                if 'Controller' in joystick_name:
+                if 'Microsoft' in joystick_name:
                     JOYSTICK_HEADLIGHTS_BUTTON = 2
                     JOYSTICK_CAMERA_ROTATION_CCW_BUTTON = 4
                     JOYSTICK_CAMERA_ROTATION_CW_BUTTON = 5
