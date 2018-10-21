@@ -36,7 +36,7 @@ class CrawlerDriverBoardSTM:
         :type data: list
         :return: None
         """
-        LOGGER.info("Sending SPI {}".format(len(data)))
+        # LOGGER.info("Sending SPI {}".format(len(data)))
         self.SPI.xfer(data)
 
     def send_spi_command(self, cmd_id, data):
