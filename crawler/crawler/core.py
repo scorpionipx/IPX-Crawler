@@ -143,15 +143,15 @@ class Crawler:
             x = int(self.joystick.get_axis(JOYSTICK_X_AXIS) * 100)
             y = - int(self.joystick.get_axis(JOYSTICK_Y_AXIS) * 100)
 
-            for i in range(6):
-                axis = self.joystick.get_axis(i)
-                if axis:
-                    LOGGER.info("AXIS {}".format(i))
+            # for i in range(6):
+            #     axis = self.joystick.get_axis(i)
+            #     if axis:
+            #         LOGGER.info("AXIS {}".format(i))
 
             for button_index in range(number_of_buttons):
                 if self.joystick.get_button(button_index):
                     button_pressed[button_index] = True
-                    LOGGER.info("Button {}".format(button_index))
+                    # LOGGER.info("Button {}".format(button_index))
 
             if button_pressed[JOYSTICK_HEADLIGHTS_BUTTON] and button_allowed[JOYSTICK_HEADLIGHTS_BUTTON]:
                 button_pressed[JOYSTICK_HEADLIGHTS_BUTTON] = False
