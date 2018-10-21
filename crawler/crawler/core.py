@@ -53,8 +53,9 @@ class Crawler:
                 return
             else:
                 LOGGER.info("No joystick device connected!")
-        print("ip: {}".format(ip))
-        self.connection = Host(ip=ip, port=port)
+        else:
+            print("ip: {}".format(ip))
+            self.connection = Host(ip=ip, port=port)
         self.driver = CrawlerDriverBoardSTM()
 
         self.__listening__ = False
