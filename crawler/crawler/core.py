@@ -69,6 +69,13 @@ class Crawler:
         self.__listening__ = False
         LOGGER.debug("Crawler initialized!")
 
+    def stop_manual_control(self):
+        """stop_manual_control
+
+        :return:
+        """
+        self.manual_control = False
+
     def build_spi_command(self, cmd_id, data):
         """build_spi_command
 
