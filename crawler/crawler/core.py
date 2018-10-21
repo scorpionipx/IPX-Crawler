@@ -42,7 +42,13 @@ class Crawler:
                 self.manual_control = True
                 self.joystick = pygame.joystick.Joystick(0)
                 self.joystick.init()
-                LOGGER.info("JOYSTICK FOUND: {}".format(self.joystick.get_name()))
+                joystick_name = self.joystick.get_name()
+                LOGGER.info("JOYSTICK FOUND: {}".format(joystick_name))
+                if 'Controller' in joystick_name:
+                    JOYSTICK_HEADLIGHTS_BUTTON = 2
+                    JOYSTICK_CAMERA_ROTATION_CCW_BUTTON = 4
+                    JOYSTICK_CAMERA_ROTATION_CW_BUTTON = 5
+
                 sleep(0.5)
                 axes = self.joystick.get_numaxes()
                 LOGGER.info(axes)

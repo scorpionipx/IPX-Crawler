@@ -78,7 +78,7 @@ class CrawlerGUI(QWidget):
             LOGGER.info("JOYSTICK FOUND: {}".format(self.joystick.get_name()))
             sleep(0.5)
             axes = self.joystick.get_numaxes()
-            LOGGER.info(axes)
+            LOGGER.info("Number of axes: {}".format(axes))
 
             axis_thread = threading.Thread(target=self.__manual_control__)
             axis_thread.start()
@@ -159,11 +159,12 @@ class CrawlerGUI(QWidget):
             pygame.event.pump()
             x = int(self.joystick.get_axis(JOYSTICK_X_AXIS) * 100)
             y = - int(self.joystick.get_axis(JOYSTICK_Y_AXIS) * 100)
-
+            # z = int(self.joystick.get_axis(4) * 100)
+            # LOGGER.info("Z axis: {}".format(z))
             for button_index in range(number_of_buttons):
                 if self.joystick.get_button(button_index):
                     button_pressed[button_index] = True
-                    # LOGGER.info("Button {} pressed".format(button_index))
+                    LOGGER.info("Button {} pressed".format(button_index))
 
             if button_pressed[JOYSTICK_HEADLIGHTS_BUTTON] and button_allowed[JOYSTICK_HEADLIGHTS_BUTTON]:
                 button_pressed[JOYSTICK_HEADLIGHTS_BUTTON] = False
@@ -832,8 +833,8 @@ class CrawlerGUI(QWidget):
         
     def turn_lights_on(self):
         """turn_lights_on
-        
-        :return: 
+
+        :return:
         """
         spi_data = self.build_spi_command(cmd_id=3, data=[3])
         # LOGGER.info(drive_spi_data)
@@ -841,11 +842,11 @@ class CrawlerGUI(QWidget):
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
         self.lights_on = True
-        
+
     def turn_lights_off(self):
         """turn_lights_off
-        
-        :return: 
+
+        :return:
         """
         spi_data = self.build_spi_command(cmd_id=3, data=[0])
         # LOGGER.info(drive_spi_data)
