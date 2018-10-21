@@ -135,6 +135,7 @@ int main(void)
   {
   /* USER CODE END WHILE */
 	  rotate_camera();
+	  HAL_Delay(0.001);
   /* USER CODE BEGIN 3 */
 
   }

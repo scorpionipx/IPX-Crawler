@@ -180,7 +180,7 @@ class CrawlerGUI(QWidget):
                 if button_allowed_counter[JOYSTICK_HEADLIGHTS_BUTTON] == 0:
                     button_allowed_counter[JOYSTICK_HEADLIGHTS_BUTTON] = button_forbidden_cycles
                     button_allowed[JOYSTICK_HEADLIGHTS_BUTTON] = True
-                    
+
             if button_pressed[JOYSTICK_CAMERA_ROTATION_CCW_BUTTON]:
                 button_pressed[JOYSTICK_CAMERA_ROTATION_CCW_BUTTON] = False
                 button_pressed[JOYSTICK_CAMERA_ROTATION_CW_BUTTON] = False
