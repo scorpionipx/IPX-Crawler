@@ -37,6 +37,8 @@ class Crawler:
             global JOYSTICK_HEADLIGHTS_BUTTON
             global JOYSTICK_CAMERA_ROTATION_CCW_BUTTON
             global JOYSTICK_CAMERA_ROTATION_CW_BUTTON
+            global JOYSTICK_X_AXIS
+            global JOYSTICK_Y_AXIS
 
             pygame.init()
             pygame.joystick.init()
@@ -142,7 +144,7 @@ class Crawler:
             for i in range(6):
                 axis = self.joystick.get_axis(i)
                 if axis:
-                    LOGGER.info("AXIS {}".format(axis))
+                    LOGGER.info("AXIS {}".format(i))
 
             for button_index in range(number_of_buttons):
                 if self.joystick.get_button(button_index):
