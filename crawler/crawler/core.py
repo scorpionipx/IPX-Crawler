@@ -34,6 +34,10 @@ class Crawler:
         LOGGER.debug("Initializing Crawler...")
         self.lights_on = False
         if manual_control:
+            global JOYSTICK_HEADLIGHTS_BUTTON
+            global JOYSTICK_CAMERA_ROTATION_CCW_BUTTON
+            global JOYSTICK_CAMERA_ROTATION_CW_BUTTON
+
             pygame.init()
             pygame.joystick.init()
 
