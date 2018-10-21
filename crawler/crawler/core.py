@@ -54,6 +54,8 @@ class Crawler:
                     JOYSTICK_HEADLIGHTS_BUTTON = 2
                     JOYSTICK_CAMERA_ROTATION_CCW_BUTTON = 4
                     JOYSTICK_CAMERA_ROTATION_CW_BUTTON = 5
+                    JOYSTICK_X_AXIS = 0
+                    JOYSTICK_Y_AXIS = 4
 
                 sleep(0.5)
                 axes = self.joystick.get_numaxes()
