@@ -49,8 +49,6 @@ class Crawler:
 
                 axis_thread = threading.Thread(target=self.__manual_control__)
                 axis_thread.start()
-                LOGGER.debug("Crawler initialized!")
-                return
             else:
                 LOGGER.info("No joystick device connected!")
         else:
