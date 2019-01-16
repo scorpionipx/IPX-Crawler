@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QApplication, QDesktopWidget, QTextEdit, QPushButton, QInputDialog, QLineEdit, \
     QComboBox, QMessageBox, QLabel
-
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QImage, QPalette, QBrush
 
 from crawler.utils.gui.utils import DragButton
 
@@ -16,13 +16,12 @@ from crawler.version import __version__
 from crawler.utils.connection.client import Client
 import pygame
 
-
 LOGGER = logging.getLogger('crawler')
 LOGGER.level = logging.INFO
 
 APP_TITLE = 'CrawlerIPX'
-APP_SIZE_WIDTH = 800
-APP_SIZE_HEIGHT = 600
+APP_SIZE_WIDTH = 1280
+APP_SIZE_HEIGHT = 720
 
 CURRENT_DIR = os.path.dirname(__file__)
 LANGUAGE_LITERAL = 'ipx_lang:'
@@ -30,8 +29,8 @@ LANGUAGE_LITERAL = 'ipx_lang:'
 JOYSTICK_X_AXIS = 0
 JOYSTICK_Y_AXIS = 3
 JOYSTICK_HEADLIGHTS_BUTTON = 6
-JOYSTICK_CAMERA_ROTATION_CCW_BUTTON = 4
-JOYSTICK_CAMERA_ROTATION_CW_BUTTON = 5
+JOYSTICK_CAMERA_ROTATION_CCW_BUTTON = 8
+JOYSTICK_CAMERA_ROTATION_CW_BUTTON = 9
 
 NOB_TO_N = {0: 0, 1: 1, 2: 1, 3: 2, 4: 2, 5: 3, 6: 3, 7: 3, 8: 3}
 
@@ -46,7 +45,7 @@ class CrawlerGUI(QWidget):
         """Constructor
 
         """
-        self.__ip__ = '192.168.0.102'
+        self.__ip__ = '192.168.0.109'
         self.__port__ = 8888
         self.__connection__ = None
 
@@ -147,14 +146,14 @@ class CrawlerGUI(QWidget):
         number_of_buttons = self.joystick.get_numbuttons()
         LOGGER.info("{} buttons".format(number_of_buttons))
         button_pressed = [False] * number_of_buttons
+        button_allowed = [True] * number_of_buttons
         button_forbidden_cycles = 3
+        button_allowed_counter = [button_forbidden_cycles] * number_of_buttons
         spi_delay = 0.05
         no_need_to_send_counter = 0
         no_need_to_send = False
 
         while self.manual_control:
-
-            total_spi_command = []
 
             pygame.event.pump()
             x = int(self.joystick.get_axis(JOYSTICK_X_AXIS) * 100)
@@ -164,40 +163,37 @@ class CrawlerGUI(QWidget):
             for button_index in range(number_of_buttons):
                 if self.joystick.get_button(button_index):
                     button_pressed[button_index] = True
-                    # LOGGER.info("Button {} pressed".format(button_index))
-                else:
-                    button_pressed[button_index] = False
+                    LOGGER.info("Button {} pressed".format(button_index))
 
-            if button_pressed[JOYSTICK_HEADLIGHTS_BUTTON]:
-                if self.lights_on:
-                    spi_data = self.build_spi_command(cmd_id=3, data=[0])
-                    self.lights_on = False
-                    # self.turn_lights_off()
-                else:
-                    spi_data = self.build_spi_command(cmd_id=3, data=[3])
-                    self.lights_on = True
-                    # self.turn_lights_on()
+            if button_pressed[JOYSTICK_HEADLIGHTS_BUTTON] and button_allowed[JOYSTICK_HEADLIGHTS_BUTTON]:
+                button_pressed[JOYSTICK_HEADLIGHTS_BUTTON] = False
+                if self.__connection__:
+                    button_allowed[JOYSTICK_HEADLIGHTS_BUTTON] = False
+                    if self.lights_on:
+                        self.turn_lights_off()
+                    else:
+                        self.turn_lights_on()
+                    sleep(spi_delay)
 
-                total_spi_command.extend(spi_data)
-                    # sleep(spi_delay)
-
-            # if not button_allowed[JOYSTICK_HEADLIGHTS_BUTTON]:
-            #     button_allowed_counter[JOYSTICK_HEADLIGHTS_BUTTON] -= 1
-            #     if button_allowed_counter[JOYSTICK_HEADLIGHTS_BUTTON] == 0:
-            #         button_allowed_counter[JOYSTICK_HEADLIGHTS_BUTTON] = button_forbidden_cycles
-            #         button_allowed[JOYSTICK_HEADLIGHTS_BUTTON] = True
+            if not button_allowed[JOYSTICK_HEADLIGHTS_BUTTON]:
+                button_allowed_counter[JOYSTICK_HEADLIGHTS_BUTTON] -= 1
+                if button_allowed_counter[JOYSTICK_HEADLIGHTS_BUTTON] == 0:
+                    button_allowed_counter[JOYSTICK_HEADLIGHTS_BUTTON] = button_forbidden_cycles
+                    button_allowed[JOYSTICK_HEADLIGHTS_BUTTON] = True
 
             if button_pressed[JOYSTICK_CAMERA_ROTATION_CCW_BUTTON]:
                 button_pressed[JOYSTICK_CAMERA_ROTATION_CCW_BUTTON] = False
                 button_pressed[JOYSTICK_CAMERA_ROTATION_CW_BUTTON] = False
-                spi_data = self.build_spi_command(cmd_id=5, data=[1])
-                total_spi_command.extend(spi_data)
+                if self.__connection__:
+                    self.rotate_camera_ccw()
+                    sleep(spi_delay)
 
             if button_pressed[JOYSTICK_CAMERA_ROTATION_CW_BUTTON]:
                 button_pressed[JOYSTICK_CAMERA_ROTATION_CCW_BUTTON] = False
                 button_pressed[JOYSTICK_CAMERA_ROTATION_CW_BUTTON] = False
-                spi_data = self.build_spi_command(cmd_id=5, data=[2])
-                total_spi_command.extend(spi_data)
+                if self.__connection__:
+                    self.rotate_camera_cw()
+                    sleep(spi_delay)
 
             if x == 0 == y:
                 no_need_to_send_counter += 1
@@ -208,15 +204,6 @@ class CrawlerGUI(QWidget):
                 no_need_to_send = False
 
             if no_need_to_send:
-                # LOGGER.info("Total SPI DATA")
-                # LOGGER.info(total_spi_command)
-                if len(total_spi_command) > 0:
-                    if self.__connection__:
-                        udp_frame = '$i50$d'
-                        for spi_data_value in total_spi_command:
-                            udp_frame += chr(spi_data_value)
-                        response = self.__connection__.send_package_and_get_response(udp_frame)
-                        sleep(spi_delay)
                 continue
 
             l_pwm = 0
@@ -228,7 +215,7 @@ class CrawlerGUI(QWidget):
             elif x < 0 and y > 0:
                 l_pwm = y + x
                 r_pwm = y
-            elif x >=0 and y < 0:
+            elif x >= 0 and y < 0:
                 l_pwm = y
                 r_pwm = y + x
             elif x < 0 and y < 0:
@@ -264,20 +251,16 @@ class CrawlerGUI(QWidget):
             directions = l_dir
             directions <<= 2
             directions |= r_dir
-        
+
             if l_pwm < 0:
                 l_pwm = - l_pwm
             if r_pwm < 0:
                 r_pwm = - r_pwm
 
             drive_spi_data = self.build_spi_command(cmd_id=10, data=[l_pwm, r_pwm, directions])
-            total_spi_command.extend(drive_spi_data)
-            # LOGGER.info("Total SPI DATA")
-            # LOGGER.info(total_spi_command)
             # LOGGER.info(drive_spi_data)
-            udp_frame = '$i50$d'
-            for spi_data_value in total_spi_command:
-                udp_frame += chr(spi_data_value)
+            udp_frame = '$i50$d' + chr(drive_spi_data[0]) + chr(drive_spi_data[1]) + chr(drive_spi_data[2]) + \
+                        chr(drive_spi_data[3])
             if self.__connection__:
                 pass
                 response = self.__connection__.send_package_and_get_response(udp_frame)
@@ -484,29 +467,29 @@ class CrawlerGUI(QWidget):
         self.speak_button.setText('Speak')
         self.speak_button.clicked.connect(self.speak)
         self.speak_button.show()
-        
+
     def __lw_motor_control__(self):
         """__lw_motor_control__
-        
-        :return: 
+
+        :return:
         """
         x = 380
         y = 260
-        
+
         self.send_power_button = QPushButton('SEND POWER', self)
         self.send_power_button.resize(self.send_power_button.sizeHint())
         self.send_power_button.move(x, y)
         self.send_power_button.setToolTip('Set specified power')
         self.send_power_button.clicked.connect(self.set_power)
         self.send_power_button.show()
-        
+
         self.send_direction_button = QPushButton('SEND DIRECTIONS', self)
         self.send_direction_button.resize(self.send_direction_button.sizeHint())
         self.send_direction_button.move(x, y + 25)
         self.send_direction_button.setToolTip('Set specified direction')
         self.send_direction_button.clicked.connect(self.set_directions)
         self.send_direction_button.show()
-        
+
         self.send_motor_control_data = QPushButton('MOTOR CONTROL', self)
         self.send_motor_control_data.resize(self.send_motor_control_data.sizeHint())
         self.send_motor_control_data.move(x, y + 50)
@@ -517,7 +500,7 @@ class CrawlerGUI(QWidget):
     def __lw_lights_control__(self):
         """__lw_lights_control__
 
-        :return: 
+        :return:
         """
         x = 500
         y = 260
@@ -606,7 +589,6 @@ class CrawlerGUI(QWidget):
             self.spi_data_holder[_].show()
             self.spi_data_holder[_].setText("0")
 
-
     def __lw_power_data_entry__(self):
         """__lw_power_data_entry__
 
@@ -631,7 +613,7 @@ class CrawlerGUI(QWidget):
         self.set_all_power_button.show()
 
         self.motor_power_holder[-1].resize(self.set_all_power_button.size())
-        
+
     def __lw_direction_data_entry__(self):
         """__lw_direction_data_entry__
 
@@ -750,6 +732,12 @@ class CrawlerGUI(QWidget):
         self.centre()
         # prevent window from resizing
         self.setFixedSize(self.size())
+        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
+        oImage = QImage(r"D:\Documents\Programming\Repositories\IPXCrawler\crawler\crawler\utils\gui\utils\images\main_background.png")
+        sImage = oImage.scaled(QSize(APP_SIZE_WIDTH, APP_SIZE_HEIGHT))  # resize Image to widgets size
+        palette = QPalette()
+        palette.setBrush(10, QBrush(sImage))  # 10 = Windowrole
+        self.setPalette(palette)
         self.show()
 
     def get_settings(self):
@@ -780,7 +768,7 @@ class CrawlerGUI(QWidget):
     def send_data_and_await_response(self):
         """
 
-        :return: 
+        :return:
         """
         data = self.udp_data_entry.text()
         response = self.__connection__.send_package_and_get_response(data)
@@ -846,7 +834,7 @@ class CrawlerGUI(QWidget):
         udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
-        
+
     def turn_lights_on(self):
         """turn_lights_on
 
@@ -892,7 +880,7 @@ class CrawlerGUI(QWidget):
         udp_frame = '$i50$d' + chr(spi_data[0]) + chr(spi_data[1])
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
-        
+
     def set_power_(self):
         """
 
@@ -908,7 +896,7 @@ class CrawlerGUI(QWidget):
         udp_frame = '$i50$d' + spi_cmd_id + spi_data_0 + spi_data_1 + spi_data_2 + spi_data_3 + spi_data_4
         response = self.__connection__.send_package_and_get_response(udp_frame)
         LOGGER.info(response)
-        
+
     def send_spi_data(self):
         """
 
@@ -943,28 +931,28 @@ class CrawlerGUI(QWidget):
             spi_data_1 = chr(1)
             spi_data_2 = chr(1)
             spi_data_3 = chr(1)
-            
+
         elif key_pressed == Qt.Key_S:
             spi_cmd_id = chr(2)
             spi_data_0 = chr(2)
             spi_data_1 = chr(2)
             spi_data_2 = chr(2)
             spi_data_3 = chr(2)
-            
+
         elif key_pressed == Qt.Key_A:
             spi_cmd_id = chr(2)
             spi_data_0 = chr(2)
             spi_data_1 = chr(1)
             spi_data_2 = chr(2)
             spi_data_3 = chr(1)
-            
+
         elif key_pressed == Qt.Key_D:
             spi_cmd_id = chr(2)
             spi_data_0 = chr(1)
             spi_data_1 = chr(2)
             spi_data_2 = chr(1)
             spi_data_3 = chr(2)
-            
+
         elif key_pressed == Qt.Key_Z:
             spi_cmd_id = chr(2)
             spi_data_0 = chr(0)
