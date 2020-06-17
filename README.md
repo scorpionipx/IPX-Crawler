@@ -6,6 +6,9 @@ Currently built for Python version 3+
 Client is created using RaspberryPi platform.
 Currently built to run on RaspberryPi B 3, Raspbian Stretch OS
 
+
+![alt text](https://github.com/scorpionipx/IPX-Crawler/blob/develop/104430660_2767072036885795_6971467355197687324_n.jpg?raw=true)
+
 # NOTICE!!!
 There are some setting needed to be configured on first run:
 1. To enable wi-fi on rpi:
